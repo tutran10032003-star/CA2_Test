@@ -9,42 +9,59 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-sky: #eef6fc;
-      --card: rgba(255, 255, 255, 0.94);
-      --border: #d4e4f2;
-      --border-soft: #e4eff8;
-      --text: #132536;
-      --muted: #52687d;
-      --primary: #0f6cbd;
-      --primary-hover: #0b5699;
-      --normal-bg: #e7f8ef;
-      --normal-fg: #136c3e;
-      --standby-bg: #fff7df;
-      --standby-fg: #945d00;
-      --barriers-bg: #ffe9ec;
-      --barriers-fg: #b81d33;
-      --unknown-bg: #eef2f7;
+      --bg-base: #eaf4fb;
+      --bg-grad-top: #e3f1fc;
+      --bg-grad-mid: #f3f9fd;
+      --bg-grad-bot: #e6f5f2;
+      --surface: rgba(255, 255, 255, 0.96);
+      --surface-soft: #f5fafe;
+      --border: #cfe2f2;
+      --border-strong: #b6d3ea;
+      --text: #0f2537;
+      --muted: #4b657c;
+      --navy: #0b355c;
+      --teal: #0e7c86;
+      --blue: #0f6cbd;
+
+      --normal-bg: #e4f7ed;
+      --normal-fg: #11663a;
+      --normal-bd: #a9e3c4;
+
+      --standby-bg: #fff5d6;
+      --standby-fg: #8c5600;
+      --standby-bd: #f5d684;
+
+      --barriers-bg: #ffe5e9;
+      --barriers-fg: #b0182d;
+      --barriers-bd: #f7b2bc;
+
+      --unknown-bg: #edf2f7;
       --unknown-fg: #475569;
+      --unknown-bd: #cbd5e1;
+
       --warn-bg: #fff1f2;
       --warn-border: #fecdd3;
       --warn-fg: #9f1239;
-      --shadow-sm: 0 4px 14px rgba(14, 65, 114, 0.06);
-      --shadow-md: 0 10px 28px rgba(14, 65, 114, 0.09);
+
+      --shadow-card: 0 6px 20px rgba(11, 53, 92, 0.06);
+      --shadow-float: 0 12px 28px rgba(11, 53, 92, 0.12);
     }
 
     * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
       font: 14.5px/1.58 'Plus Jakarta Sans', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
       color: var(--text);
-      background: linear-gradient(165deg, #e7f3fc 0%, #f4f9fd 45%, #eaf6f4 100%);
+      background: linear-gradient(170deg, var(--bg-grad-top) 0%, var(--bg-grad-mid) 48%, var(--bg-grad-bot) 100%);
       min-height: 100vh;
       position: relative;
       overflow-x: hidden;
     }
 
-    /* Gentle animated river wave backdrop */
+    /* Animated river wave backdrop */
     .wave-bg {
       position: fixed;
       inset: 0;
@@ -54,31 +71,32 @@
     }
     .wave-svg {
       position: absolute;
-      bottom: -10px;
+      bottom: -8px;
       left: 0;
       width: 200%;
-      height: 210px;
-      opacity: 0.45;
-      animation: driftWave 22s linear infinite;
+      height: 220px;
+      opacity: 0.5;
+      animation: riverFlow 24s linear infinite;
     }
-    .wave-svg.wave-2 {
-      bottom: 8px;
-      opacity: 0.28;
-      animation: driftWaveReverse 30s linear infinite;
+    .wave-svg.wave-back {
+      bottom: 12px;
+      opacity: 0.32;
+      animation: riverFlowReverse 34s linear infinite;
     }
-    @keyframes driftWave {
+    @keyframes riverFlow {
       0% { transform: translateX(0); }
       100% { transform: translateX(-50%); }
     }
-    @keyframes driftWaveReverse {
+    @keyframes riverFlowReverse {
       0% { transform: translateX(-50%); }
       100% { transform: translateX(0); }
     }
 
+    /* Top Header */
     header {
       position: relative;
-      z-index: 2;
-      background: linear-gradient(120deg, #0b2e52 0%, #0f568e 58%, #0d7c8c 100%);
+      z-index: 3;
+      background: linear-gradient(120deg, #092c4c 0%, #0e548d 56%, #0d7e89 100%);
       color: #fff;
       padding: 18px 28px 34px;
       display: flex;
@@ -86,7 +104,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 14px;
-      box-shadow: 0 4px 20px rgba(11, 46, 82, 0.16);
+      box-shadow: 0 6px 22px rgba(9, 44, 76, 0.16);
     }
     .header-wave {
       position: absolute;
@@ -99,19 +117,18 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 13px;
+      gap: 14px;
     }
-    .brand-badge {
-      width: 46px;
-      height: 46px;
-      border-radius: 14px;
+    .brand-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
       background: rgba(255, 255, 255, 0.16);
-      border: 1px solid rgba(255, 255, 255, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.3);
       display: grid;
       place-items: center;
       font-size: 24px;
-      backdrop-filter: blur(6px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     }
     header h1 {
       margin: 0;
@@ -120,36 +137,40 @@
       letter-spacing: -0.02em;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 9px;
+      flex-wrap: wrap;
     }
-    .version-tag {
+    .badge-sub {
       font-size: 11px;
       font-weight: 700;
-      padding: 2px 8px;
+      padding: 3px 9px;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.18);
-      color: #e0f2fe;
-      letter-spacing: 0.03em;
-      text-transform: uppercase;
+      color: #e6f6ff;
+      letter-spacing: 0.02em;
     }
     header p {
       margin: 3px 0 0;
       font-size: 13px;
-      color: #d6eaf8;
+      color: #d6ecfa;
     }
-    .header-pill {
-      background: rgba(255, 255, 255, 0.14);
-      border: 1px solid rgba(255, 255, 255, 0.24);
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .chip-top {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #f4fbff;
       padding: 7px 14px;
       border-radius: 999px;
       font-size: 12.5px;
       font-weight: 600;
-      color: #f0f9ff;
-      display: flex;
-      align-items: center;
-      gap: 6px;
     }
 
+    /* Disclaimer strip */
     .top-disclaimer {
       position: relative;
       z-index: 2;
@@ -157,9 +178,9 @@
       margin: 14px auto 0;
       padding: 0 18px;
     }
-    .disclaimer-inner {
+    .disclaimer-box {
       background: #fffbeb;
-      border: 1px solid #fde68a;
+      border: 1px solid #f7d97e;
       color: #78350f;
       padding: 9px 15px;
       border-radius: 12px;
@@ -168,7 +189,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow-card);
     }
 
     main {
@@ -176,46 +197,76 @@
       z-index: 2;
       max-width: 1240px;
       margin: 16px auto;
-      padding: 0 18px 56px;
+      padding: 0 18px 96px;
       display: grid;
       gap: 18px;
     }
 
+    /* Overview KPI strip (inspired by Winter Watch's clear summary strip) */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    .kpi-tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .kpi-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }
+    .kpi-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.15;
+    }
+    .kpi-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
     .card {
-      background: var(--card);
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 20px 22px;
-      box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(8px);
-      transition: box-shadow 0.2s ease;
+      box-shadow: var(--shadow-card);
     }
-    .card:hover {
-      box-shadow: var(--shadow-md);
-    }
-    .card-header {
+    .card-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
       margin-bottom: 14px;
     }
     .card h2 {
       margin: 0;
       font-size: 16.5px;
-      font-weight: 700;
-      color: #0b2e52;
+      font-weight: 800;
+      color: var(--navy);
       display: flex;
       align-items: center;
-      gap: 9px;
+      gap: 10px;
     }
-    .step-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 9px;
-      background: #e6f2fc;
-      color: #0f6cbd;
+    .icon-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: #e3f1fc;
+      color: var(--blue);
       display: inline-grid;
       place-items: center;
       font-size: 15px;
@@ -232,7 +283,7 @@
     input, select, textarea {
       width: 100%;
       padding: 10px 13px;
-      border: 1.5px solid #c9dced;
+      border: 1.5px solid var(--border);
       border-radius: 12px;
       font: inherit;
       color: var(--text);
@@ -241,7 +292,7 @@
     }
     input:focus, select:focus, textarea:focus {
       outline: none;
-      border-color: var(--primary);
+      border-color: var(--blue);
       box-shadow: 0 0 0 3px rgba(15, 108, 189, 0.14);
       background: #fff;
     }
@@ -260,7 +311,7 @@
       font: inherit;
       font-weight: 700;
       cursor: pointer;
-      background: linear-gradient(135deg, #0f6cbd 0%, #0d859c 100%);
+      background: linear-gradient(135deg, #0f6cbd 0%, #0d8294 100%);
       color: #fff;
       display: inline-flex;
       align-items: center;
@@ -269,18 +320,18 @@
       transition: transform 0.12s ease, box-shadow 0.15s ease, filter 0.15s ease;
     }
     button:hover {
-      filter: brightness(1.05);
+      filter: brightness(1.04);
       transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(15, 108, 189, 0.26);
+      box-shadow: 0 6px 14px rgba(15, 108, 189, 0.25);
     }
     button:active { transform: translateY(0); }
     button.secondary {
-      background: #eaf2fa;
-      color: #16324a;
+      background: #e9f2fa;
+      color: var(--navy);
       box-shadow: none;
     }
     button.secondary:hover {
-      background: #dce9f6;
+      background: #d9e9f7;
       box-shadow: none;
     }
     button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
@@ -294,10 +345,10 @@
     }
     .pill {
       background: #eaf4fc;
-      border: 1px solid #cfe4f7;
+      border: 1px solid #cce2f5;
       padding: 5px 12px;
       border-radius: 999px;
-      color: #15436b;
+      color: #14436b;
       font-weight: 600;
     }
     .pill-warn {
@@ -329,32 +380,90 @@
       font-size: 12.5px;
       font-weight: 600;
       padding: 7px 13px;
-      background: #f0f7fe;
+      background: #eff7fd;
       color: #0d5ca3;
-      border: 1px solid #cbe0f5;
+      border: 1px solid #c9dff3;
       border-radius: 999px;
       box-shadow: none;
     }
     .presets button:hover {
-      background: #e0effc;
-      border-color: #9ec5ec;
+      background: #dfeffc;
+      border-color: #9ec4e8;
     }
 
     .answer-box {
       margin-top: 14px;
       padding: 16px 18px;
-      background: linear-gradient(180deg, #f8fbff 0%, #f3f8fc 100%);
-      border: 1.5px solid #d4e4f2;
+      background: linear-gradient(180deg, #f8fbff 0%, #f2f8fc 100%);
+      border: 1.5px solid var(--border);
       border-radius: 14px;
       white-space: pre-wrap;
       line-height: 1.65;
-      color: #132536;
+      color: var(--text);
     }
     .usage-line {
       margin-top: 8px;
       font-size: 12px;
       color: var(--muted);
-      font-weight: 500;
+      font-weight: 600;
+    }
+
+    /* Town grid cards + detail table */
+    .town-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .town-mini-card {
+      background: #fff;
+      border: 1.5px solid var(--border);
+      border-radius: 15px;
+      padding: 14px 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+    }
+    .town-mini-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-card);
+    }
+    .town-mini-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .town-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+    .town-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .town-metrics {
+      font-size: 12.5px;
+      color: var(--text);
+      background: var(--surface-soft);
+      border: 1px solid #e3eff9;
+      border-radius: 10px;
+      padding: 8px 10px;
+      line-height: 1.5;
+    }
+    .town-crew-line {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .town-note-line {
+      font-size: 11.5px;
+      color: var(--muted);
+      border-top: 1px dashed #dceaf6;
+      padding-top: 6px;
     }
 
     .table-wrap {
@@ -371,22 +480,21 @@
     }
     th, td {
       padding: 10px 12px;
-      border-bottom: 1px solid var(--border-soft);
+      border-bottom: 1px solid #e5eff8;
       text-align: left;
       vertical-align: top;
     }
     th {
-      background: #eef6fc;
+      background: #edf6fc;
       font-size: 12px;
       font-weight: 700;
-      color: #1e4263;
+      color: #1d4264;
       white-space: nowrap;
       text-transform: uppercase;
       letter-spacing: 0.03em;
     }
-    tbody tr:hover {
-      background: #f7fbff;
-    }
+    tbody tr:hover { background: #f7fbff; }
+
     .lvl {
       display: inline-flex;
       align-items: center;
@@ -396,11 +504,12 @@
       font-weight: 700;
       font-size: 12px;
       white-space: nowrap;
+      border: 1px solid transparent;
     }
-    .lvl-Normal { background: var(--normal-bg); color: var(--normal-fg); }
-    .lvl-Standby { background: var(--standby-bg); color: var(--standby-fg); }
-    .lvl-Barriers { background: var(--barriers-bg); color: var(--barriers-fg); }
-    .lvl-Unknown { background: var(--unknown-bg); color: var(--unknown-fg); }
+    .lvl-Normal { background: var(--normal-bg); color: var(--normal-fg); border-color: var(--normal-bd); }
+    .lvl-Standby { background: var(--standby-bg); color: var(--standby-fg); border-color: var(--standby-bd); }
+    .lvl-Barriers { background: var(--barriers-bg); color: var(--barriers-fg); border-color: var(--barriers-bd); }
+    .lvl-Unknown { background: var(--unknown-bg); color: var(--unknown-fg); border-color: var(--unknown-bd); }
 
     .source-footer {
       margin-top: 12px;
@@ -413,7 +522,7 @@
       line-height: 1.55;
     }
 
-    /* Clean styling for mounted ai-brain.js settings panel */
+    /* Mounted ai-brain.js panel */
     .brain-box {
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -424,7 +533,7 @@
     .brain-box summary {
       cursor: pointer;
       font-weight: 700;
-      color: #0b2e52;
+      color: var(--navy);
       font-size: 13px;
     }
     .brain-grid {
@@ -443,14 +552,55 @@
       color: var(--muted);
       margin: 8px 0 0;
     }
+
+    /* Floating dock navigation (clean, subtle, non-intrusive) */
+    .floating-dock {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      background: rgba(11, 53, 92, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(10px);
+      padding: 6px 10px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: var(--shadow-float);
+    }
+    .dock-link {
+      color: #e2f1fc;
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 999px;
+      transition: background 0.15s ease, color 0.15s ease;
+      white-space: nowrap;
+    }
+    .dock-link:hover {
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
+    @media (max-width: 600px) {
+      .floating-dock {
+        width: calc(100% - 24px);
+        justify-content: space-around;
+        gap: 2px;
+        padding: 6px;
+      }
+      .dock-link { padding: 6px 8px; font-size: 11.5px; }
+    }
   </style>
   <script src="ai-brain.js"></script>
 </head>
 <body>
-  <!-- Subtle flowing river waves in background -->
+  <!-- Flowing river waves background -->
   <div class="wave-bg" aria-hidden="true">
-    <svg class="wave-svg wave-2" viewBox="0 0 1440 220" preserveAspectRatio="none">
-      <path fill="#cbe6f8" d="M0,130 C240,185 480,75 720,130 C960,185 1200,75 1440,130 L1440,220 L0,220 Z"></path>
+    <svg class="wave-svg wave-back" viewBox="0 0 1440 220" preserveAspectRatio="none">
+      <path fill="#cce5f8" d="M0,130 C240,185 480,75 720,130 C960,185 1200,75 1440,130 L1440,220 L0,220 Z"></path>
     </svg>
     <svg class="wave-svg" viewBox="0 0 1440 220" preserveAspectRatio="none">
       <path fill="#b7dff7" d="M0,150 C320,95 440,195 720,150 C1040,95 1160,195 1440,150 L1440,220 L0,220 Z"></path>
@@ -459,29 +609,55 @@
 
   <header>
     <div class="brand">
-      <div class="brand-badge" aria-hidden="true">🌊</div>
+      <div class="brand-icon" aria-hidden="true">🌊</div>
       <div>
-        <h1>RiverWatch <span class="version-tag">Operations</span></h1>
+        <h1>RiverWatch <span class="badge-sub">Flood Operations</span></h1>
         <p>Live Google Sheet · Open-Meteo GloFAS Forecast · Met Éireann Rain Warnings · 2016–2025 Baselines</p>
       </div>
     </div>
-    <div class="header-pill">🛡️ 8 Irish Watch Towns · Rule-Verified Briefing</div>
+    <div class="header-meta">
+      <span class="chip-top">🛡️ 8 Irish Watch Towns · Rule-Verified</span>
+    </div>
     <svg class="header-wave" viewBox="0 0 1440 30" preserveAspectRatio="none" aria-hidden="true">
-      <path fill="#e7f3fc" d="M0,12 C360,32 1080,-6 1440,16 L1440,30 L0,30 Z"></path>
+      <path fill="#e3f1fc" d="M0,12 C360,32 1080,-6 1440,16 L1440,30 L0,30 Z"></path>
     </svg>
   </header>
 
   <div class="top-disclaimer">
-    <div class="disclaimer-inner">
+    <div class="disclaimer-box">
       <span>🧭</span>
       <span>AI can make mistakes; a person makes the final decision.</span>
     </div>
   </div>
 
   <main>
-    <section class="card">
-      <div class="card-header">
-        <h2><span class="step-icon">📊</span> 1. Live Data Source &amp; AI Settings</h2>
+    <!-- Quick Overview Strip -->
+    <section class="kpi-grid" aria-label="Operational Summary">
+      <div class="kpi-tile">
+        <span class="kpi-label">Barriers Active</span>
+        <span class="kpi-value" id="kpiBarriers">—</span>
+        <span class="kpi-sub">Towns at Barriers level</span>
+      </div>
+      <div class="kpi-tile">
+        <span class="kpi-label">Standby Watch</span>
+        <span class="kpi-value" id="kpiStandby">—</span>
+        <span class="kpi-sub">Towns at Standby level</span>
+      </div>
+      <div class="kpi-tile">
+        <span class="kpi-label">Normal Flow</span>
+        <span class="kpi-value" id="kpiNormal">—</span>
+        <span class="kpi-sub">Towns at Normal level</span>
+      </div>
+      <div class="kpi-tile">
+        <span class="kpi-label">Area Mgr Flags</span>
+        <span class="kpi-value" id="kpiFlags">—</span>
+        <span class="kpi-sub">Unassigned / no set alerts</span>
+      </div>
+    </section>
+
+    <section id="sec-sources" class="card">
+      <div class="card-head">
+        <h2><span class="icon-badge">📊</span> 1. Live Data Sources &amp; AI Settings</h2>
       </div>
       <div>
         <label for="sheetUrl">Public Google Sheet URL (Anyone with link: Viewer)</label>
@@ -497,9 +673,9 @@
       <div class="alert-banner" id="metAlertBanner"></div>
     </section>
 
-    <section class="card">
-      <div class="card-header">
-        <h2><span class="step-icon">💬</span> 2. Ask Operational Flood Question</h2>
+    <section id="sec-briefing" class="card">
+      <div class="card-head">
+        <h2><span class="icon-badge">💬</span> 2. Operational Briefing &amp; Q&amp;A</h2>
       </div>
       <div class="presets">
         <button type="button" data-q="What is tonight's flood action level for every town, and how are our mobile barrier crews assigned?">🌊 Tonight's 8-town briefing &amp; crews</button>
@@ -515,10 +691,13 @@
       <div id="usageBox" class="usage-line"></div>
     </section>
 
-    <section class="card">
-      <div class="card-header">
-        <h2><span class="step-icon">📋</span> 3. Live 8-Town Flood Plan Evaluation (Rule-Verified)</h2>
+    <section id="sec-towns" class="card">
+      <div class="card-head">
+        <h2><span class="icon-badge">📋</span> 3. Live 8-Town Flood Plan Status (Rule-Verified)</h2>
       </div>
+
+      <div id="townCardsGrid" class="town-cards-grid"></div>
+
       <div class="table-wrap">
         <table>
           <thead>
@@ -544,6 +723,12 @@
       </div>
     </section>
   </main>
+
+  <nav class="floating-dock" aria-label="Quick section navigation">
+    <a class="dock-link" href="#sec-towns">🌊 8 Towns</a>
+    <a class="dock-link" href="#sec-briefing">💬 Briefing</a>
+    <a class="dock-link" href="#sec-sources">📊 Data &amp; AI</a>
+  </nav>
 
   <script>
     if (window.Brain && typeof window.Brain.mount === "function") {
@@ -1058,7 +1243,43 @@
       return { towns: evaluated, crew_summary: crewSummary };
     }
 
-    function renderTable(towns) {
+    function renderOverviewAndTowns(evaluated) {
+      const towns = evaluated.towns;
+      const crewSummary = evaluated.crew_summary || {};
+      const barriersCount = towns.filter(t => t.final_action === "Barriers").length;
+      const standbyCount = towns.filter(t => t.final_action === "Standby").length;
+      const normalCount = towns.filter(t => t.final_action === "Normal").length;
+      const flagsCount = (crewSummary.area_manager_flags || []).length;
+
+      $("kpiBarriers").textContent = String(barriersCount);
+      $("kpiStandby").textContent = String(standbyCount);
+      $("kpiNormal").textContent = String(normalCount);
+      $("kpiFlags").textContent = String(flagsCount);
+
+      $("townCardsGrid").innerHTML = towns.map(t => {
+        const icon = t.final_action === "Normal" ? "🌿" : t.final_action === "Standby" ? "🔔" : t.final_action === "Barriers" ? "🚧" : "❓";
+        const effStr = t.effective_flow_m3s !== null ? `${t.effective_flow_m3s.toFixed(2)} m³/s` : "Unknown";
+        const peakStr = t.peak_3d_m3s !== null ? `${t.peak_3d_m3s.toFixed(2)} (${t.peak_3d_date})` : "—";
+        const notesTxt = t.rule_notes.length ? t.rule_notes.join(" | ") : "Normal service";
+        return `
+          <div class="town-mini-card">
+            <div class="town-mini-top">
+              <div>
+                <div class="town-name">${escapeHtml(t.town)}</div>
+                <div class="town-sub">${escapeHtml(t.river)} · ${escapeHtml(t.counties_matched.join(" / "))}</div>
+              </div>
+              <span class="lvl lvl-${t.final_action}">${icon} ${t.final_action}</span>
+            </div>
+            <div class="town-metrics">
+              <div><b>Effective:</b> ${effStr} · <b>3d Peak:</b> ${peakStr}</div>
+              <div><b>P95 / P99:</b> ${t.p95_m3s} / ${t.p99_m3s} m³/s · <b>Rain (48h):</b> ${escapeHtml(t.effective_warning)}</div>
+            </div>
+            <div class="town-crew-line">${escapeHtml(t.crew_status)} · Sets: ${t.barrier_sets} · Sandbags: ${t.sandbags.toLocaleString()}</div>
+            <div class="town-note-line">${escapeHtml(notesTxt)}</div>
+          </div>
+        `;
+      }).join("");
+
       const tbody = $("townTableBody");
       tbody.innerHTML = towns.map(t => {
         const todayStr = t.today_m3s !== null ? t.today_m3s.toFixed(2) : "—";
@@ -1111,7 +1332,7 @@
           },
           ...evaluated
         };
-        renderTable(evaluated.towns);
+        renderOverviewAndTowns(evaluated);
         setStatus([
           `Sheet: ${sheetRows.length} rows`,
           `Open-Meteo: 8/8 towns (${fcRes.fromCache ? "10-min cache" : "live"})`,
@@ -1166,7 +1387,7 @@
           "6. For historical winter high-flow questions (2016/17 to 2024/25, Oct 1–Mar 31), read exact counts and seasonal breakdowns from each town's history object in the JSON and mention small-sample and threshold-counting limitations."
         ].join("\n");
 
-        const userPrompt = `User Question:\n${question}\n\nVerified Live & Historical Flood Plan State (JSON):\n${JSON.stringify(state, null, 2)}`;
+        const userPrompt = `User Question:\n${question}\n\nVerified Live & Historical Flood Plan State (JSON):\n${JSON.stringify(state)}`;
         const ans = await window.Brain.ask(systemPrompt, userPrompt);
         $("answerBox").textContent = ans.text || "(empty reply)";
         if (typeof window.Brain.usageLine === "function") {
