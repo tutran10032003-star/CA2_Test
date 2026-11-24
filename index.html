@@ -365,7 +365,7 @@ th { background: #d6ebf5; font-size: 12px; color: #064466; white-space: nowrap; 
 .drawer-backdrop.open { display: flex; }
 .drawer-panel {
   width: 100%;
-  max-width: 480px;
+  max-width: 640px;
   max-height: 88vh;
   overflow-y: auto;
   background: #f5fbfe;
@@ -602,23 +602,89 @@ function escapeHtml(s) {
   return String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
 }
 
-function buildVisualAnswerCards(state) {
+function buildVisualAnswerCards(state, questionText = "") {
   if (!state || !Array.isArray(state.towns)) return "";
   const towns = state.towns;
   const wf = state.what_if;
+  const q = String(questionText || "").toLowerCase();
 
-  let whatIfHtml = "";
+  // 1. What-if flow question -> only show the what-if card itself
   if (wf && wf.town) {
     const pctText = wf.level_from_flow_only === "Barriers" && typeof wf.pct_above_p99 === "number"
-      ? ` · +${wf.pct_above_p99}% vs p99`
+      ? ` · +${wf.pct_above_p99}% above p99`
       : "";
-    whatIfHtml = `
+    return `
       <div style="margin-bottom:10px;padding:10px 12px;border-radius:10px;background:#dff0f8;border:1px solid #88bdd6;font-family:system-ui,-apple-system,sans-serif;font-size:12.5px;color:#064466;">
-        <b>🧪 What-if flow check (${escapeHtml(wf.town)} · ${escapeHtml(wf.river)}):</b>
+        <b>🧪 What-if check (${escapeHtml(wf.town)} · ${escapeHtml(wf.river)}):</b>
         <b>${Number(wf.flow_m3s).toFixed(1)} m³/s</b> →
         <span class="lvl lvl-${escapeHtml(wf.level_from_flow_only)}">${escapeHtml(wf.level_from_flow_only)}</span>${escapeHtml(pctText)}
+        <span class="muted"> (p95 ${wf.p95_m3s} · p99 ${wf.p99_m3s})</span>
         <div style="color:#295670;margin-top:3px;">${escapeHtml(wf.note || "")}</div>
       </div>`;
+  }
+
+  // 2. Area Manager / winter history question -> show winter high-flow events (2016/17 - 2024/25)
+  if (q.includes("defence") || q.includes("defense") || q.includes("study") || q.includes("winter") || q.includes("history") || q.includes("first in line")) {
+    const histRows = towns
+      .map(t => ({
+        town: t.town,
+        river: t.river,
+        events: t.history?.winter_events_2016_2025 ?? 0,
+        first4: t.history?.first_4_winters_2016_20 ?? 0,
+        last4: t.history?.last_4_winters_2021_25 ?? 0
+      }))
+      .sort((a, b) => b.events - a.events);
+    const maxEv = Math.max(1, ...histRows.map(r => r.events));
+    return `
+      <div style="margin-bottom:12px;padding:10px 12px;border-radius:10px;background:#eef7fc;border:1px solid #b5d7e8;font-family:system-ui,-apple-system,sans-serif;font-size:12px;">
+        <div style="font-weight:800;color:#064466;margin-bottom:8px;">🌊 High-Flow Winter Events (2016/17 – 2024/25 · ≥ p99)</div>
+        <div style="display:grid;gap:6px;">
+          ${histRows.map(r => {
+            const w = Math.max(6, Math.round((r.events / maxEv) * 100));
+            return `
+              <div style="background:#fff;border:1px solid #cde3ef;border-radius:8px;padding:6px 9px;">
+                <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:3px;">
+                  <b>${escapeHtml(r.town)} <span class="muted">(${escapeHtml(r.river)})</span></b>
+                  <span><b>${r.events}</b> events <span class="muted">(16–20: ${r.first4} · 21–25: ${r.last4})</span></span>
+                </div>
+                <div class="ratio-track" style="height:6px;"><div class="ratio-fill" style="width:${w}%"></div></div>
+              </div>`;
+          }).join("")}
+        </div>
+      </div>`;
+  }
+
+  // 3. Tonight's plan / full overview question -> show 8-town snapshot
+  const isFullPlan = q.includes("plan") || q.includes("tonight") || q.includes("all towns") || q.includes("crew");
+  const matchedTowns = towns.filter(t => q.includes(t.town.toLowerCase()) || q.includes(t.river.toLowerCase()));
+
+  if (matchedTowns.length > 0 && matchedTowns.length <= 2 && !isFullPlan) {
+    return `
+      <div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1.5px solid #b5d7e8;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px;">
+          ${matchedTowns.map(t => {
+            const eff = (typeof t.effective_flow_m3s === "number" && !isNaN(t.effective_flow_m3s)) ? t.effective_flow_m3s : 0;
+            const p99 = (typeof t.p99_m3s === "number" && t.p99_m3s > 0) ? t.p99_m3s : 1;
+            const pct = Math.max(4, Math.min(100, Math.round((eff / p99) * 100)));
+            const lvClass = ["Normal", "Standby", "Barriers"].includes(t.final_action) ? `lv-${t.final_action}` : "";
+            return `
+              <div style="background:#ffffff;border:1px solid #c5dfed;border-radius:9px;padding:8px 10px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:4px;">
+                  <b style="color:#072233">${escapeHtml(t.town)}</b>
+                  <span class="lvl lvl-${escapeHtml(t.final_action)}" style="padding:1px 7px;font-size:11px;">${escapeHtml(t.final_action)}</span>
+                </div>
+                <div style="color:#295670;font-size:11px;margin-bottom:5px;">Flow <b>${eff.toFixed(1)}</b> / p99 ${p99.toFixed(1)} m³/s</div>
+                <div class="ratio-track" style="height:6px;">
+                  <div class="ratio-fill ${lvClass === "lv-Barriers" ? "danger" : lvClass === "lv-Standby" ? "warn" : ""}" style="width:${pct}%"></div>
+                </div>
+              </div>`;
+          }).join("")}
+        </div>
+      </div>`;
+  }
+
+  if (!isFullPlan) {
+    return "";
   }
 
   const barsHtml = towns.map(t => {
@@ -641,11 +707,10 @@ function buildVisualAnswerCards(state) {
 
   return `
     <div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1.5px solid #b5d7e8;">
-      ${whatIfHtml}
       <div style="font-family:system-ui,-apple-system,sans-serif;font-size:11.5px;font-weight:800;color:#064466;margin-bottom:7px;">
         📊 Visual Data Snapshot (8 Towns · Flow vs. p99)
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:8px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;">
         ${barsHtml}
       </div>
     </div>`;
@@ -1209,7 +1274,8 @@ $("btnAsk").onclick = async () => {
     const userPrompt = `Question:\n${question}\n\nChecked data:\n${JSON.stringify(state)}`;
     const ans = await window.Brain.ask(systemPrompt, userPrompt);
     const rendered = renderMarkdown(ans.text || "(empty reply)");
-    $("answerBox").innerHTML = buildVisualAnswerCards(state) + rendered;
+    $("answerBox").innerHTML = buildVisualAnswerCards(state, question) + rendered;
+    $("answerBox").scrollIntoView({ behavior: "smooth", block: "nearest" });
     if (typeof window.Brain.usageLine === "function") $("usageBox").textContent = window.Brain.usageLine(ans);
   } catch (e) {
     const errMsg = `Error: ${e.message}`;
