@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RiverWatch · Flood Decision Support (Ireland)</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --border: #d8e1eb;
+      --text: #16202a;
+      --muted: #526171;
+      --primary: #0b5cad;
+      --primary-hover: #084785;
+      --normal-bg: #e8f5e9;
+      --normal-fg: #1b5e20;
+      --standby-bg: #fff8e1;
+      --standby-fg: #8d6e00;
+      --barriers-bg: #ffebee;
+      --barriers-fg: #b71c1c;
+      --badge-bg: #eef3f9;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 14.5px/1.55 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      background: #0b2545;
+      color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    header h1 { margin: 0; font-size: 20px; }
+    header p { margin: 2px 0 0; font-size: 13px; color: #cbd8e8; }
+    main {
+      max-width: 1240px;
+      margin: 20px auto;
+      padding: 0 16px 40px;
+      display: grid;
+      gap: 18px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      color: #0b2545;
+    }
+    label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #c5d1de;
+      border-radius: 8px;
+      font: inherit;
+      background: #fff;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid rgba(11, 92, 173, 0.25);
+      border-color: var(--primary);
+    }
+    .row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+    }
+    button {
+      padding: 9px 15px;
+      border: 0;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--primary);
+      color: #fff;
+    }
+    button:hover { background: var(--primary-hover); }
+    button.secondary {
+      background: #e9eff6;
+      color: #16202a;
+    }
+    button.secondary:hover { background: #dce5f0; }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 12.5px;
+    }
+    .pill {
+      background: var(--badge-bg);
+      padding: 4px 10px;
+      border-radius: 999px;
+      color: #263645;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1050px;
+      font-size: 13.5px;
+    }
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #edf2f7;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f1f5f9;
+      font-size: 12px;
+      color: #334155;
+      white-space: nowrap;
+    }
+    .lvl {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .lvl-Normal { background: var(--normal-bg); color: var(--normal-fg); }
+    .lvl-Standby { background: var(--standby-bg); color: var(--standby-fg); }
+    .lvl-Barriers { background: var(--barriers-bg); color: var(--barriers-fg); }
+    .presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .presets button {
+      font-size: 12.5px;
+      padding: 6px 11px;
+      background: #eef4fb;
+      color: #0b5cad;
+      border: 1px solid #c9ddf3;
+    }
+    .presets button:hover { background: #dceafb; }
+    .answer-box {
+      margin-top: 14px;
+      padding: 14px 16px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+    .usage-line {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .small-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+    /* Styles for ai-brain.js mount */
+    .brain-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      background: #f8fafc;
+      margin-top: 10px;
+    }
+    .brain-box summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: #0b2545;
+    }
+    .brain-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .brain-btns {
+      display: flex;
+      gap: 8px;
+      align-items: end;
+    }
+    .brain-help {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 6px 0 0;
+    }
+  </style>
+  <script src="ai-brain.js"></script>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>RiverWatch · Flood Operations Decision Support</h1>
+      <p>Live Google Sheet + Open-Meteo Flood Forecast (GloFAS) + Met Éireann Warnings + Historical Baselines (2016–2025)</p>
+    </div>
+    <div style="font-size:12.5px;color:#cbd8e8;">8 Irish Flood-Watch Towns · Deterministic Rule Engine + AI Briefing</div>
+  </header>
+
+  <main>
+    <!-- 1. Live Data Source & AI Brain Settings -->
+    <section class="card">
+      <h2>1. Live Data Source & AI Settings</h2>
+      <div>
+        <label for="sheetUrl">Public Google Sheet URL (Anyone with link: Viewer)</label>
+        <input id="sheetUrl" type="text" value="https://docs.google.com/spreadsheets/d/1gjIlrEyJJiF2yW_znSD08Tmr5_WjdeKcSbmm6fa5HtA/edit?gid=0#gid=0" />
+      </div>
+      <div class="row-actions">
+        <button id="btnRefresh" type="button">Refresh Live Data (Sheet + Forecast + Met Éireann)</button>
+      </div>
+      <div id="brain-settings"></div>
+      <div class="status-bar" id="statusBar">
+        <span class="pill">Ready — click Refresh Live Data or Ask Question</span>
+      </div>
+    </section>
+
+    <!-- 2. Operational Question & AI Briefing -->
+    <section class="card">
+      <h2>2. Ask Operational Flood Question</h2>
+      <div class="presets">
+        <button type="button" data-q="What is tonight's flood action level for every town, and how should we deploy our 3 mobile barrier crews?">Tonight's full 8-town briefing & crew deployment</button>
+        <button type="button" data-q="Which town had the most winter high-flow events between 2016/17 and 2024/25, and did the last four winters have more events than the first four?">Area Manager: Winter high-flow events (2016–2025)</button>
+        <button type="button" data-q="Check any active flow or weather warning overrides and explain how they change tonight's barrier plan.">Check drill overrides & exceptions</button>
+        <button type="button" data-q="What is the live river discharge in Dublin on the River Liffey tonight?">Out-of-scope test (Dublin / Liffey)</button>
+      </div>
+      <textarea id="question" rows="3" placeholder="Ask about tonight's action levels, mobile crew assignments, overrides, or 2016–2025 winter flood history...">What is tonight's flood action level for every town, and how should we deploy our 3 mobile barrier crews?</textarea>
+      <div class="row-actions">
+        <button id="btnAsk" type="button">Generate Decision Briefing</button>
+      </div>
+      <div id="answerBox" class="answer-box">Briefing output will appear here after running live data & rules.</div>
+      <div id="usageBox" class="usage-line"></div>
+    </section>
+
+    <!-- 3. Live 8-Town Deterministic Status Table -->
+    <section class="card">
+      <h2>3. Live 8-Town Flood Plan Evaluation (Rule-Verified)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Town (County)</th>
+              <th>River</th>
+              <th>Today / 3-Day Peak (m³/s)</th>
+              <th>Effective Flow (m³/s)</th>
+              <th>P95 / P99 (m³/s)</th>
+              <th>Met Éireann Warning</th>
+              <th>Action Level</th>
+              <th>Crew & Barriers</th>
+              <th>Rule Notes / Overrides</th>
+            </tr>
+          </thead>
+          <tbody id="townTableBody">
+            <tr><td colspan="9">Click "Refresh Live Data" or "Generate Decision Briefing" to load live figures.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small-note">
+        Historical baselines computed offline from Open-Meteo Flood API (GloFAS reanalysis, CC BY 4.0) over 3,653 days (2016-01-01 to 2025-12-31).
+        Mobile crew rule: 3 crews max, max 2 towns/night; crew-based towns deploy locally first (Mallow crew restricted to Mallow tonight due to van repair); Bandon has 0 barrier sets on loan.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    if (window.Brain && typeof window.Brain.mount === "function") {
+      window.Brain.mount("brain-settings");
+    }
+
+    const HISTORY_SUMMARY = [
+      {
+        town: "Clonmel", county: "Tipperary", counties_matched: ["Tipperary"], river: "Suir",
+        query_lat: 52.355, query_lon: -7.7039, grid_lat: 52.375, grid_lon: -7.724991,
+        period: "2016-01-01 to 2025-12-31", days_count: 3653,
+        median_m3s: 21.65, p95_m3s: 66.3, p99_m3s: 107.88, max_m3s: 237.23,
+        winter_events_2016_2025: 11, first_4_winters_2016_20: 2, last_4_winters_2021_25: 6, last4_gt_first4: true,
+        season_breakdown: {"2016/17": 0, "2017/18": 0, "2018/19": 0, "2019/20": 2, "2020/21": 3, "2021/22": 2, "2022/23": 1, "2023/24": 2, "2024/25": 1}
+      },
+      {
+        town: "Fermoy", county: "Cork", counties_matched: ["Cork"], river: "Blackwater",
+        query_lat: 52.1858, query_lon: -8.2758, grid_lat: 52.175003, grid_lon: -8.274994,
+        period: "2016-01-01 to 2025-12-31", days_count: 3653,
+        median_m3s: 23.27, p95_m3s: 73.2, p99_m3s: 120.47, max_m3s: 299.61,
+        winter_events_2016_2025: 10, first_4_winters_2016_20: 1, last_4_winters_2021_25: 6, last4_gt_first4: true,
+        season_breakdown: {"2016/17": 0, "2017/18": 0, "2018/19": 0, "2019/20": 1, "2020/21": 3, "2021/22": 0, "2022/23": 1, "2023/24": 2, "2024/25": 3}
+      },
+      {
+        town: "Mallow", county: "Cork", counties_matched: ["Cork"], river: "Blackwater",
+        query_lat: 52.1347, query_lon: -8.6414, grid_lat: 52.125, grid_lon: -8.624985,
+        period: "2016-01-01 to 2025-12-31", days_count: 3653,
+        median_m3s: 13.96, p95_m3s: 44.6, p99_m3s: 71.33, max_m3s: 207.45,
+        winter_events_2016_2025: 13, first_4_winters_2016_20: 2, last_4_winters_2021_25: 8, last4_gt_first4: true,
+        season_breakdown: {"2016/17": 1, "2017/18": 0, "2018/19": 0, "2019/20": 1, "2020/21": 3, "2021/22": 1, "2022/23": 1, "2023/24": 3, "2024/25": 3}
+      },
+      {
+        town: "Bandon", county: "Cork", counties_matched: ["Cork"], river: "Bandon",
+        query_lat: 51.7969, query_lon: -8.7425, grid_lat: 51.775, grid_lon: -8.724991,
+        period: "2016-01-01 to 2025-12-31", days_count: 3653,
+        median_m3s: 5.5, p95_m3s: 22.01, p99_m3s: 38.7, max_m3s: 99.69,
+        winter_events_2016_2025: 11, first_4_winters_2016_20: 1, last_4_winters_2021_25: 8, last4_gt_first4: true,
+        season_breakdown: {"2016/17": 0, "2017/18": 0, "2018/19": 0, "2019/20": 1, "2020/21": 2, "2021/22": 0, "2022/23": 0, "2023/24": 3, "2024/25": 5}
+      },
+      {
+        town: "Enniscorthy", county: "Wexford", counties_matched: ["Wexford"], river: "Slaney",
+        query_lat: 52.5008, query_lon: -6.5658, grid_lat: 52.525, grid_lon: -6.574997,
+        period: "2016-01-01 to 2025-12-31", days_count: 3653,
+        median_m3s: 10.67, p95_m3s: 29.86, p99_m3s: 52.39, max_m3s: 124.03,
+        winter_events_2016_2025: 7, first_4_winters_2016_20: 2, last_4_winters_2021_25: 4, last4_gt_first4: true,
+        season_breakdown: {"2016/17": 0, "2017/18": 1, "2018/19": 0, "2019/20": 1, "2020/21": 1, "2021/22": 0, "2022/23": 0, "2023/24": 2, "2024/25": 2}
+      },
+      {
+        town: "Ennis", county: "Clare", counties_matched: ["Clare"], river: "Fergus",
+        query_lat: 52.8436, query_lon: -8.9864, grid_lat: 52.825005, grid_lon: -8.974991,
+        period: "2016-01-01 to 2025-12-31", days_count: 3653,
+        median_m3s: 2.61, p95_m3s: 5.76, p99_m3s: 7.17, max_m3s: 9.91,
+        winter_events_2016_2025: 6, first_4_winters_2016_20: 3, last_4_winters_2021_25: 2, last4_gt_first4: false,
+        season_breakdown: {"2016/17": 0, "2017/18": 0, "2018/19": 0, "2019/20": 2, "2020/21": 1, "2021/22": 0, "2022/23": 0, "2023/24": 0, "2024/25": 0}
+      },
+      {
+        town: "Athlone", county: "Westmeath", counties_matched: ["Westmeath", "Roscommon"], river: "Shannon",
+        query_lat: 53.395, query_lon: -7.955, grid_lat: 53.375, grid_lon: -7.974991,
+        period: "2016-01-01 to 2025-12-31", days_count: 3653,
+        median_m3s: 68.5, p95_m3s: 145.35, p99_m3s: 190.43, max_m3s: 260.22,
+        winter_events_2016_2025: 3, first_4_winters_2016_20: 2, last_4_winters_2021_25: 0, last4_gt_first4: false,
+        season_breakdown: {"2016/17": 0, "2017/18": 0, "2018/19": 0, "2019/20": 2, "2020/21": 1, "2021/22": 0, "2022/23": 0, "2023/24": 0, "2024/25": 0}
+      },
+      {
+        town: "Carrick-on-Shannon", county: "Leitrim", counties_matched: ["Leitrim", "Roscommon"], river: "Shannon",
+        query_lat: 53.9469, query_lon: -8.09, grid_lat: 53.925003, grid_lon: -8.074997,
+        period: "2016-01-01 to 2025-12-31", days_count: 3653,
+        median_m3s: 21.86, p95_m3s: 62.24, p99_m3s: 88.84, max_m3s: 133.59,
+        winter_events_2016_2025: 12, first_4_winters_2016_20: 4, last_4_winters_2021_25: 3, last4_gt_first4: false,
+        season_breakdown: {"2016/17": 0, "2017/18": 1, "2018/19": 1, "2019/20": 2, "2020/21": 5, "2021/22": 1, "2022/23": 1, "2023/24": 0, "2024/25": 1}
+      }
+    ];
+
+    const $ = id => document.getElementById(id);
+    let latestState = null;
+
+    (function initSheetUrl() {
+      const savedSheet = localStorage.getItem("rw_sheet_url");
+      if (savedSheet) $("sheetUrl").value = savedSheet;
+      $("sheetUrl").addEventListener("change", () => {
+        localStorage.setItem("rw_sheet_url", $("sheetUrl").value.trim());
+      });
+    })();
+
+    document.querySelectorAll(".presets button").forEach(btn => {
+      btn.onclick = () => { $("question").value = btn.dataset.q; };
+    });
+
+    function setStatus(items) {
+      $("statusBar").innerHTML = items.map(t => `<span class="pill">${escapeHtml(t)}</span>`).join("");
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? "").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+    }
+
+    function parseCsv(text) {
+      const rows = [];
+      let row = [], cell = "", inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i], next = text[i + 1];
+        if (inQuotes) {
+          if (ch === '"' && next === '"') { cell += '"'; i++; }
+          else if (ch === '"') { inQuotes = false; }
+          else { cell += ch; }
+        } else {
+          if (ch === '"') { inQuotes = true; }
+          else if (ch === ",") { row.push(cell.trim()); cell = ""; }
+          else if (ch === "" && next === "
+") { row.push(cell.trim()); rows.push(row); row = []; cell = ""; i++; }
+          else if (ch === "
+" || ch === "") { row.push(cell.trim()); rows.push(row); row = []; cell = ""; }
+          else { cell += ch; }
+        }
+      }
+      if (cell.length > 0 || row.length > 0) { row.push(cell.trim()); rows.push(row); }
+      const headers = (rows[0] || []).map(h => h.toLowerCase().trim());
+      return rows.slice(1).filter(r => r.some(x => x !== "")).map(r => {
+        const obj = {};
+        headers.forEach((h, idx) => { obj[h] = r[idx] ?? ""; });
+        return obj;
+      });
+    }
+
+    async function fetchGoogleSheet(url) {
+      const m = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+      if (!m) throw new Error("Invalid Google Sheet URL.");
+      const id = m[1];
+      const gidMatch = url.match(/[?&#]gid=(\d+)/);
+      const gid = gidMatch ? gidMatch[1] : "0";
+      const csvUrl = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&gid=${gid}&_=${Date.now()}`;
+      const res = await fetch(csvUrl);
+      if (!res.ok) throw new Error(`Google Sheet HTTP ${res.status}`);
+      const txt = await res.text();
+      return parseCsv(txt);
+    }
+
+    async function fetchLiveForecasts() {
+      const lats = HISTORY_SUMMARY.map(t => t.query_lat).join(",");
+      const lons = HISTORY_SUMMARY.map(t => t.query_lon).join(",");
+      const url = `https://flood-api.open-meteo.com/v1/flood?latitude=${lats}&longitude=${lons}&daily=river_discharge&forecast_days=3`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Open-Meteo HTTP ${res.status}`);
+      const data = await res.json();
+      const arr = Array.isArray(data) ? data : [data];
+      const byTown = {};
+      HISTORY_SUMMARY.forEach((t, idx) => {
+        const item = arr[idx] || {};
+        const times = item.daily?.time || [];
+        const vals = item.daily?.river_discharge || [];
+        let peakVal = null, peakDate = "";
+        vals.forEach((v, i) => {
+          if (v !== null && !isNaN(v) && (peakVal === null || v > peakVal)) {
+            peakVal = v;
+            peakDate = times[i] || "";
+          }
+        });
+        byTown[t.town] = {
+          today_m3s: vals[0] ?? null,
+          today_date: times[0] || "",
+          peak_3d_m3s: peakVal,
+          peak_3d_date: peakDate,
+          daily: times.map((d, i) => ({ date: d, discharge_m3s: vals[i] }))
+        };
+      });
+      return byTown;
+    }
+
+    async function fetchMetWarnings() {
+      const target = "https://www.met.ie/Open_Data/json/warning_IRELAND.json";
+      const endpoints = [
+        target,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`
+      ];
+      let lastErr = null;
+      for (const ep of endpoints) {
+        try {
+          const res = await fetch(ep);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          const json = await res.json();
+          if (Array.isArray(json)) return { warnings: json, source: ep === target ? "Met Éireann direct" : "Met Éireann via CORS proxy" };
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      return { warnings: [], source: `Met Éireann unavailable (${lastErr?.message || "CORS"})` };
+    }
+
+    function normalizeWarnLevel(raw) {
+      const s = String(raw || "").trim().toLowerCase();
+      if (s.includes("red")) return "Red";
+      if (s.includes("orange")) return "Orange";
+      if (s.includes("yellow")) return "Yellow";
+      return "None";
+    }
+
+    function warnRank(lvl) {
+      return { None: 0, Yellow: 1, Orange: 2, Red: 3 }[lvl] || 0;
+    }
+
+    function getCountyWarning(townMeta, warnings) {
+      const counties = townMeta.counties_matched.map(c => c.toLowerCase());
+      let bestLevel = "None";
+      const matchedTexts = [];
+      for (const w of warnings) {
+        const lvl = normalizeWarnLevel(w.level || w.severity || w.status || "");
+        if (lvl === "None") continue;
+        const blob = JSON.stringify(w).toLowerCase();
+        const hit = counties.some(c => blob.includes(c)) || blob.includes("ireland") || blob.includes("nationwide");
+        if (hit) {
+          if (warnRank(lvl) > warnRank(bestLevel)) bestLevel = lvl;
+          matchedTexts.push(`${lvl}: ${w.headline || w.type || "Weather warning"}`);
+        }
+      }
+      return { level: bestLevel, details: matchedTexts };
+    }
+
+    function evaluateFloodPlan(sheetRows, forecasts, warnings) {
+      const sheetByTown = {};
+      sheetRows.forEach(r => {
+        if (r.town) sheetByTown[r.town.trim().toLowerCase()] = r;
+      });
+
+      const evaluated = HISTORY_SUMMARY.map(hist => {
+        const s = sheetByTown[hist.town.toLowerCase()] || {};
+        const fc = forecasts[hist.town] || { today_m3s: null, peak_3d_m3s: null, daily: [] };
+
+        const rawFlowOv = String(s.flow_override_m3s ?? "").trim();
+        const hasFlowOverride = rawFlowOv !== "" && !isNaN(Number(rawFlowOv));
+        const liveFlow = fc.today_m3s !== null ? Number(fc.today_m3s) : (fc.peak_3d_m3s !== null ? Number(fc.peak_3d_m3s) : 0);
+        const effectiveFlow = hasFlowOverride ? Number(rawFlowOv) : liveFlow;
+
+        let baseAction = "Normal";
+        if (effectiveFlow >= hist.p99_m3s) baseAction = "Barriers";
+        else if (effectiveFlow >= hist.p95_m3s) baseAction = "Standby";
+
+        const liveWarn = getCountyWarning(hist, warnings);
+        const rawWarnOv = String(s.warning_override ?? "").trim();
+        const hasWarnOverride = rawWarnOv !== "" && normalizeWarnLevel(rawWarnOv) !== "None";
+        const effectiveWarn = hasWarnOverride ? normalizeWarnLevel(rawWarnOv) : liveWarn.level;
+
+        let finalAction = baseAction;
+        const ruleNotes = [];
+        if (hasFlowOverride) ruleNotes.push(`Flow override active: ${effectiveFlow} m³/s`);
+        if (hasWarnOverride) ruleNotes.push(`Warning override active: ${effectiveWarn}`);
+        if (liveWarn.details.length > 0 && !hasWarnOverride) ruleNotes.push(liveWarn.details.join("; "));
+
+        if (effectiveWarn === "Orange" || effectiveWarn === "Red") {
+          if (finalAction === "Normal") {
+            finalAction = "Standby";
+            ruleNotes.push(`Raised Normal → Standby due to ${effectiveWarn} weather warning`);
+          } else if (finalAction === "Standby") {
+            finalAction = "Barriers";
+            ruleNotes.push(`Raised Standby → Barriers due to ${effectiveWarn} weather warning`);
+          } else {
+            ruleNotes.push(`Already at Barriers (${effectiveWarn} warning active)`);
+          }
+        } else if (effectiveWarn === "Yellow") {
+          ruleNotes.push("Yellow weather warning noted (does not raise action level)");
+        }
+
+        const crewBasedHere = String(s.crew_based_here || "").trim().toLowerCase() === "yes";
+        const barrierSets = Number(s.barrier_sets ?? 0);
+        const staffOnCall = Number(s.staff_on_call ?? 0);
+        const pumps = Number(s.pumps ?? 0);
+        const sandbags = Number(s.sandbags ?? 0);
+        const sheetNotes = String(s.notes || "").trim();
+
+        if (barrierSets === 0) {
+          ruleNotes.push("0 barrier sets on site (on loan) — requires external barrier transfer/pump & sandbag contingency if Barriers triggered");
+        }
+        if (sheetNotes && sheetNotes.toLowerCase() !== "normal service") {
+          ruleNotes.push(`Ops note: ${sheetNotes}`);
+        }
+
+        return {
+          town: hist.town,
+          county: hist.county,
+          counties_matched: hist.counties_matched,
+          river: hist.river,
+          query_lat: hist.query_lat,
+          query_lon: hist.query_lon,
+          today_m3s: fc.today_m3s,
+          peak_3d_m3s: fc.peak_3d_m3s,
+          peak_3d_date: fc.peak_3d_date,
+          effective_flow_m3s: Number(effectiveFlow.toFixed(2)),
+          p95_m3s: hist.p95_m3s,
+          p99_m3s: hist.p99_m3s,
+          base_action: baseAction,
+          effective_warning: effectiveWarn,
+          final_action: finalAction,
+          crew_based_here: crewBasedHere,
+          barrier_sets: barrierSets,
+          pumps,
+          sandbags,
+          staff_on_call: staffOnCall,
+          sheet_notes: sheetNotes,
+          rule_notes: ruleNotes,
+          history: {
+            median_m3s: hist.median_m3s,
+            max_m3s: hist.max_m3s,
+            winter_events_2016_2025: hist.winter_events_2016_2025,
+            first_4_winters_2016_20: hist.first_4_winters_2016_20,
+            last_4_winters_2021_25: hist.last_4_winters_2021_25,
+            last4_gt_first4: hist.last4_gt_first4,
+            season_breakdown: hist.season_breakdown
+          }
+        };
+      });
+
+      const barrierTowns = evaluated
+        .filter(t => t.final_action === "Barriers")
+        .sort((a, b) => (b.effective_flow_m3s / b.p99_m3s) - (a.effective_flow_m3s / a.p99_m3s));
+
+      const standbyTowns = evaluated
+        .filter(t => t.final_action === "Standby")
+        .sort((a, b) => (b.effective_flow_m3s / b.p95_m3s) - (a.effective_flow_m3s / a.p95_m3s));
+
+      const crewSummary = {
+        total_mobile_crews: 3,
+        max_towns_per_night: 2,
+        home_bases: ["Clonmel", "Mallow", "Athlone"],
+        mallow_restricted_to_mallow: evaluated.some(t => t.town === "Mallow" && t.sheet_notes.toLowerCase().includes("only tonight")),
+        barriers_needed_towns: barrierTowns.map(t => t.town),
+        standby_towns: standbyTowns.map(t => t.town)
+      };
+
+      return { towns: evaluated, crew_summary: crewSummary };
+    }
+
+    function renderTable(towns) {
+      const tbody = $("townTableBody");
+      tbody.innerHTML = towns.map(t => {
+        const todayStr = t.today_m3s !== null ? t.today_m3s.toFixed(2) : "—";
+        const peakStr = t.peak_3d_m3s !== null ? `${t.peak_3d_m3s.toFixed(2)} (${t.peak_3d_date})` : "—";
+        const crewTxt = `${t.crew_based_here ? "Crew base: Yes" : "Crew base: No"} · Barriers: ${t.barrier_sets} · Staff: ${t.staff_on_call}`;
+        const notesTxt = t.rule_notes.length ? t.rule_notes.join(" | ") : "Normal service";
+        return `
+          <tr>
+            <td><b>${escapeHtml(t.town)}</b><br><span style="color:#526171;font-size:12px;">${escapeHtml(t.counties_matched.join(" / "))}</span></td>
+            <td>${escapeHtml(t.river)}</td>
+            <td>Today: ${todayStr}<br>3d Peak: ${peakStr}</td>
+            <td><b>${t.effective_flow_m3s.toFixed(2)}</b></td>
+            <td>${t.p95_m3s} / ${t.p99_m3s}</td>
+            <td>${escapeHtml(t.effective_warning)}</td>
+            <td><span class="lvl lvl-${t.final_action}">${t.final_action}</span></td>
+            <td>${escapeHtml(crewTxt)}</td>
+            <td style="max-width:260px;white-space:normal;">${escapeHtml(notesTxt)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function refreshAllLiveData() {
+      $("btnRefresh").disabled = true;
+      try {
+        setStatus(["Fetching Google Sheet, Open-Meteo Forecast & Met Éireann..."]);
+        const [sheetRows, forecasts, warnRes] = await Promise.all([
+          fetchGoogleSheet($("sheetUrl").value.trim()),
+          fetchLiveForecasts(),
+          fetchMetWarnings()
+        ]);
+        const evaluated = evaluateFloodPlan(sheetRows, forecasts, warnRes.warnings);
+        latestState = {
+          timestamp_utc: new Date().toISOString(),
+          sheet_rows_loaded: sheetRows.length,
+          weather_source: warnRes.source,
+          active_warnings_count: warnRes.warnings.length,
+          ...evaluated
+        };
+        renderTable(evaluated.towns);
+        setStatus([
+          `Google Sheet: ${sheetRows.length} rows loaded`,
+          `Open-Meteo Forecast: 8/8 towns live`,
+          `${warnRes.source} (${warnRes.warnings.length} active warnings)`
+        ]);
+        return latestState;
+      } finally {
+        $("btnRefresh").disabled = false;
+      }
+    }
+
+    $("btnRefresh").onclick = async () => {
+      try {
+        await refreshAllLiveData();
+      } catch (e) {
+        setStatus([`Error: ${e.message}`]);
+      }
+    };
+
+    $("btnAsk").onclick = async () => {
+      const question = $("question").value.trim();
+      if (!question) {
+        $("answerBox").textContent = "Please enter an operational question.";
+        return;
+      }
+      if (!window.Brain || typeof window.Brain.ask !== "function") {
+        $("answerBox").textContent = "Error: ai-brain.js failed to load. Check that ai-brain.js is in the same folder as index.html.";
+        return;
+      }
+
+      $("btnAsk").disabled = true;
+      try {
+        const state = await refreshAllLiveData();
+        $("answerBox").textContent = "Generating AI operational briefing from verified rule output...";
+        $("usageBox").textContent = "";
+
+        const systemPrompt = [
+          "You are RiverWatch, an operational flood decision-support assistant for 8 towns in Ireland: Clonmel, Fermoy, Mallow, Bandon, Enniscorthy, Ennis, Athlone, and Carrick-on-Shannon.",
+          "CRITICAL GROUNDING & HONESTY RULES:",
+          "1. Rely strictly on the verified JSON state provided below. Do NOT invent river flows, warnings, towns, or resources.",
+          "2. If the user asks about a town, river, or metric outside these 8 towns or outside the provided data (for example Dublin / Liffey), honestly decline and state that RiverWatch only monitors the 8 configured towns.",
+          "3. Explain each town's action level (Normal, Standby, Barriers) clearly with its effective flow (m³/s), P95/P99 thresholds, and any active weather warning or drill override.",
+          "4. Respect operational constraints: 3 mobile crews total (based at Clonmel, Mallow, Athlone), max 2 town deployments per night, Mallow crew van is in repair so Mallow crew can only work in Mallow tonight, and Bandon has 0 barrier sets on site (on loan).",
+          "5. When answering historical winter event questions (2016/17 to 2024/25, Oct 1–Mar 31), cite exact figures from the history object (Mallow: 13 events, 2 in first 4 winters vs 8 in last 4; Carrick-on-Shannon: 12 events, 4 vs 3) and note sample-size and event-counting limitations."
+        ].join("\n");
+
+        const userPrompt = `User Question:\n${question}\n\nVerified Live & Historical Flood Plan State (JSON):\n${JSON.stringify(state, null, 2)}`;
+        const ans = await window.Brain.ask(systemPrompt, userPrompt);
+        $("answerBox").textContent = ans.text || "(empty reply)";
+        if (typeof window.Brain.usageLine === "function") {
+          $("usageBox").textContent = window.Brain.usageLine(ans);
+        }
+      } catch (e) {
+        $("answerBox").textContent = `Error: ${e.message}`;
+      } finally {
+        $("btnAsk").disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>
