@@ -360,7 +360,10 @@ th { background: #efe3cc; font-size: 12px; color: #382516; white-space: nowrap; 
   <section class="card" id="plan">
     <div class="card-head">
       <h2><span class="step-dot">1</span> Tonight's plan</h2>
-      <button class="ghost" id="btnRefresh" type="button">🔄 Refresh live data</button>
+      <div class="row" style="margin-top:0">
+        <button class="ghost" id="btnOpenDrawer" type="button">💬 Open AI window</button>
+        <button class="ghost" id="btnRefresh" type="button">🔄 Refresh live data</button>
+      </div>
     </div>
     <div class="kpis">
       <div class="kpi"><span>Barriers</span><b id="kpiBarriers">–</b></div>
@@ -374,24 +377,7 @@ th { background: #efe3cc; font-size: 12px; color: #382516; white-space: nowrap; 
     <div class="towns" id="towns"></div>
   </section>
 
-  <section class="card" id="ask">
-    <div class="card-head">
-      <h2><span class="step-dot">2</span> Ask RiverWatch</h2>
-      <button class="ghost" id="btnOpenDrawer" type="button">💬 Open AI window</button>
-    </div>
-    <div class="presets">
-      <button type="button" data-q="What is tonight's plan?">Tonight's plan</button>
-      <button type="button" data-q="Why is Fermoy at that level?">Why is Fermoy at that level?</button>
-      <button type="button" data-q="What if the Suir at Clonmel reaches 150 m³/s?">What if the Suir at Clonmel reaches 150 m³/s?</button>
-      <button type="button" data-q="Which town should be first in line for a flood-defence study?">Which town is first for a flood-defence study?</button>
-      <button type="button" data-q="Will my house in Mallow flood tonight?">Will my house in Mallow flood tonight?</button>
-    </div>
-    <textarea id="question" rows="2" placeholder="Ask about tonight's levels, a town, the crews, overrides or winter flood history">What is tonight's plan?</textarea>
-    <div class="row"><button id="btnAsk" type="button">✨ Ask RiverWatch</button></div>
-    <div class="answer-spotlight-label">📌 Briefing Answer</div>
-    <div class="answer" id="answerBox">The answer will appear here. Every question reads the Sheet, the river forecast and the warnings again first.</div>
-    <div class="usage" id="usageBox"></div>
-  </section>
+
 
   <section class="card">
     <details class="fold">
@@ -436,14 +422,21 @@ th { background: #efe3cc; font-size: 12px; color: #382516; white-space: nowrap; 
       </div>
       <button class="drawer-close" id="btnCloseDrawer" type="button">✕ Close</button>
     </div>
-    <div class="presets" id="drawerPresets"></div>
-    <label for="drawerQuestion">Your question</label>
-    <textarea id="drawerQuestion" rows="2" placeholder="Type a question for RiverWatch..."></textarea>
+    <div class="presets" id="drawerPresets">
+      <button type="button" data-q="What is tonight's plan?">Tonight's plan</button>
+      <button type="button" data-q="Why is Fermoy at that level?">Why is Fermoy at that level?</button>
+      <button type="button" data-q="What if the Suir at Clonmel reaches 150 m³/s?">What if the Suir at Clonmel reaches 150 m³/s?</button>
+      <button type="button" data-q="Which town should be first in line for a flood-defence study?">Which town is first for a flood-defence study?</button>
+      <button type="button" data-q="Will my house in Mallow flood tonight?">Will my house in Mallow flood tonight?</button>
+    </div>
+    <label for="question">Your question</label>
+    <textarea id="question" rows="2" placeholder="Ask about tonight's levels, a town, the crews, overrides or winter flood history">What is tonight's plan?</textarea>
     <div class="row">
-      <button id="btnDrawerAsk" type="button">✨ Send question</button>
+      <button id="btnAsk" type="button">✨ Ask RiverWatch</button>
     </div>
     <div class="answer-spotlight-label">📌 Briefing Answer</div>
-    <div class="answer" id="drawerAnswerMirror">Ask a question to see the briefing here.</div>
+    <div class="answer" id="answerBox">The answer will appear here. Every question reads the Sheet, the river forecast and the warnings again first.</div>
+    <div class="usage" id="usageBox"></div>
   </div>
 </div>
 
@@ -469,7 +462,7 @@ let historySummary = null;
   });
 })();
 
-document.querySelectorAll("#ask .presets button").forEach(btn => {
+document.querySelectorAll("#drawerPresets button").forEach(btn => {
   btn.onclick = () => { $("question").value = btn.dataset.q; };
 });
 
@@ -478,26 +471,8 @@ document.querySelectorAll("#ask .presets button").forEach(btn => {
   const openBtn = $("btnOpenDrawer");
   const fabBtn = $("btnFabAi");
   const closeBtn = $("btnCloseDrawer");
-  const dQ = $("drawerQuestion");
-  const dAsk = $("btnDrawerAsk");
-  const dPresets = $("drawerPresets");
-  const dMirror = $("drawerAnswerMirror");
-
-  document.querySelectorAll("#ask .presets button").forEach(origBtn => {
-    const clone = document.createElement("button");
-    clone.type = "button";
-    clone.textContent = origBtn.textContent;
-    clone.onclick = () => { dQ.value = origBtn.dataset.q; };
-    dPresets.appendChild(clone);
-  });
-
-  function syncMirror() {
-    dMirror.innerHTML = $("answerBox").innerHTML;
-  }
 
   function openDrawer() {
-    dQ.value = $("question").value;
-    syncMirror();
     drawer.classList.add("open");
   }
 
@@ -511,18 +486,6 @@ document.querySelectorAll("#ask .presets button").forEach(btn => {
   drawer.addEventListener("click", e => {
     if (e.target === drawer) closeDrawer();
   });
-
-  dAsk.onclick = async () => {
-    $("question").value = dQ.value;
-    dAsk.disabled = true;
-    dMirror.textContent = "Writing the answer from the checked numbers…";
-    try {
-      await $("btnAsk").onclick();
-    } finally {
-      syncMirror();
-      dAsk.disabled = false;
-    }
-  };
 })();
 
 function escapeHtml(s) {
@@ -1006,7 +969,6 @@ $("btnAsk").onclick = async () => {
   try {
     const state = await refreshAllLiveData();
     $("answerBox").textContent = "Writing the answer from the checked numbers…";
-    if ($("drawerAnswerMirror")) $("drawerAnswerMirror").textContent = "Writing the answer from the checked numbers…";
     $("usageBox").textContent = "";
 
     const systemPrompt = [
@@ -1028,12 +990,10 @@ $("btnAsk").onclick = async () => {
     const ans = await window.Brain.ask(systemPrompt, userPrompt);
     const rendered = renderMarkdown(ans.text || "(empty reply)");
     $("answerBox").innerHTML = rendered;
-    if ($("drawerAnswerMirror")) $("drawerAnswerMirror").innerHTML = rendered;
     if (typeof window.Brain.usageLine === "function") $("usageBox").textContent = window.Brain.usageLine(ans);
   } catch (e) {
     const errMsg = `Error: ${e.message}`;
     $("answerBox").textContent = errMsg;
-    if ($("drawerAnswerMirror")) $("drawerAnswerMirror").textContent = errMsg;
   } finally {
     $("btnAsk").disabled = false;
   }
