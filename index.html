@@ -6,98 +6,298 @@
 <title>RiverWatch · Flood response decision support</title>
 <style>
 :root {
-  --bg: #f4f7fa; --card: #fff; --line: #dbe3ec; --text: #14212e; --muted: #5a6b7b;
-  --navy: #0b2f52; --blue: #1565c0;
-  --ok-bg: #e6f4ea; --ok-fg: #1e6b35; --ok-bd: #9fd3ae;
-  --sb-bg: #fff4d6; --sb-fg: #8a5a00; --sb-bd: #f0cf7a;
-  --bar-bg: #fde8ea; --bar-fg: #a3172b; --bar-bd: #f2a9b3;
-  --unk-bg: #edf0f4; --unk-fg: #4a5868; --unk-bd: #c9d1db;
+  --bg: #eef6fc;
+  --bg-soft: #f7fbff;
+  --card: #ffffff;
+  --line: #d4e5f4;
+  --line-soft: #e6f0f9;
+  --text: #132638;
+  --muted: #526a80;
+  --navy: #0b3963;
+  --ocean: #0e6ba8;
+  --teal: #0d8a94;
+  --accent-warm: #fff8e6;
+  --accent-warm-bd: #f3d586;
+
+  --ok-bg: #e4f7ec; --ok-fg: #176638; --ok-bd: #9fd8b7;
+  --sb-bg: #fff4d2; --sb-fg: #875400; --sb-bd: #f0cf75;
+  --bar-bg: #ffe6ea; --bar-fg: #a6192e; --bar-bd: #f5aab5;
+  --unk-bg: #eef2f6; --unk-fg: #4b5c6e; --unk-bd: #cbd5e1;
 }
 * { box-sizing: border-box; }
-body { margin: 0; font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
-.wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
-header { background: var(--navy); color: #fff; padding: 16px 0; }
-header .wrap { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-h1 { margin: 0; font-size: 21px; letter-spacing: -0.01em; }
-header small { display: block; color: #bcd0e4; font-size: 13px; margin-top: 2px; }
-.hstatus { color: #bcd0e4; font-size: 13px; max-width: 560px; text-align: right; }
-.hstatus.bad { color: #ffd0d6; font-weight: 600; }
-.notice { background: #fff8e1; border-bottom: 1px solid #f0dc9a; color: #6b4a00; font-size: 13.5px; font-weight: 600; padding: 8px 0; }
-main { display: grid; gap: 16px; padding: 18px 0 48px; }
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; }
-.card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-h2 { margin: 0; font-size: 17px; color: var(--navy); }
-.banner { display: none; padding: 10px 14px; border-radius: 10px; background: #fff1f2; border: 1px solid #fecdd3; color: #9f1239; font-size: 13.5px; font-weight: 600; }
-button { font: inherit; font-weight: 600; padding: 9px 16px; border: 0; border-radius: 9px; background: var(--blue); color: #fff; cursor: pointer; }
-button:hover { background: #0f55a0; }
-button:disabled { opacity: .55; cursor: not-allowed; }
-button.ghost { background: #eaf1f8; color: var(--navy); }
-button.ghost:hover { background: #dbe8f4; }
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 14px; }
-.kpi { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
-.kpi span { display: block; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
-.kpi b { font-size: 24px; color: var(--navy); }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font: 15px/1.58 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: radial-gradient(circle at top right, #e1f1fc 0%, var(--bg) 45%, #eaf5f3 100%);
+  color: var(--text);
+  min-height: 100vh;
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+
+header {
+  background: linear-gradient(125deg, #092f52 0%, #0e5a96 58%, #0d8590 100%);
+  color: #fff;
+  padding: 18px 0;
+  box-shadow: 0 6px 20px rgba(9, 47, 82, 0.14);
+}
+header .wrap { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+.brand-row { display: flex; align-items: center; gap: 12px; }
+.brand-mascot {
+  width: 44px; height: 44px; border-radius: 14px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  display: grid; place-items: center; font-size: 22px; flex-shrink: 0;
+}
+h1 { margin: 0; font-size: 21px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tag-pill {
+  font-size: 11.5px; font-weight: 700; padding: 2px 9px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18); color: #eef8ff;
+}
+header small { display: block; color: #d3e9f8; font-size: 13px; margin-top: 2px; }
+.hstatus {
+  color: #e6f4fd; font-size: 12.5px; max-width: 560px; text-align: right;
+  background: rgba(255, 255, 255, 0.12); padding: 6px 12px; border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.hstatus.bad { background: #ffe4e8; color: #9f1239; border-color: #fecdd3; font-weight: 700; }
+
+.notice {
+  background: var(--accent-warm);
+  border-bottom: 1px solid var(--accent-warm-bd);
+  color: #6b4700;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 8px 0;
+}
+.notice .wrap { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+
+main { display: grid; gap: 18px; padding: 18px 0 84px; }
+.card {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 6px 18px rgba(11, 57, 99, 0.05);
+}
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+h2 { margin: 0; font-size: 17px; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+.step-dot {
+  width: 26px; height: 26px; border-radius: 9px;
+  background: #e3f1fc; color: var(--ocean);
+  display: inline-grid; place-items: center; font-size: 13px; font-weight: 800;
+}
+
+.banner {
+  display: none; padding: 11px 15px; border-radius: 12px;
+  background: #fff1f2; border: 1.5px solid #fecdd3; color: #9f1239;
+  font-size: 13.5px; font-weight: 600;
+}
+
+button {
+  font: inherit; font-weight: 700; padding: 9px 16px; border: 0; border-radius: 11px;
+  background: linear-gradient(135deg, #0e6ba8 0%, #0d8a94 100%);
+  color: #fff; cursor: pointer;
+  box-shadow: 0 3px 10px rgba(14, 107, 168, 0.18);
+  transition: transform 0.12s ease, filter 0.15s ease, box-shadow 0.15s ease;
+}
+button:hover { filter: brightness(1.04); transform: translateY(-1px); box-shadow: 0 5px 14px rgba(14, 107, 168, 0.24); }
+button:active { transform: translateY(0); }
+button:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
+button.ghost { background: #eaf3fb; color: var(--navy); box-shadow: none; border: 1px solid #cce0f2; }
+button.ghost:hover { background: #dbeaf8; box-shadow: none; }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 11px; margin-bottom: 14px; }
+.kpi {
+  background: var(--bg-soft);
+  border: 1.5px solid var(--line);
+  border-radius: 13px;
+  padding: 11px 14px;
+}
+.kpi span { display: block; font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
+.kpi b { font-size: 24px; color: var(--navy); line-height: 1.2; margin-top: 2px; display: block; }
+
 .crews { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 10px; }
-.crew { background: #f1f6fb; border-radius: 10px; padding: 10px 12px; font-size: 14px; }
-.flags { margin-bottom: 12px; font-size: 14px; color: var(--bar-fg); font-weight: 600; }
+.crew {
+  background: linear-gradient(180deg, #f3f9fe 0%, #eaf4fc 100%);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 13.5px;
+}
+.flags { margin-bottom: 12px; font-size: 13.5px; color: var(--bar-fg); font-weight: 700; }
+
 .towns { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
-.town { border: 1px solid var(--line); border-left: 5px solid var(--unk-bd); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; align-content: start; }
-.town.lv-Normal { border-left-color: #3fa564; }
-.town.lv-Standby { border-left-color: #e0a526; }
-.town.lv-Barriers { border-left-color: #d1344b; }
+.town {
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-left: 5px solid var(--unk-bd);
+  border-radius: 13px;
+  padding: 13px 14px;
+  display: grid; gap: 6px; align-content: start;
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+}
+.town:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(11, 57, 99, 0.07); }
+.town.lv-Normal { border-left-color: #36a15e; }
+.town.lv-Standby { border-left-color: #e0a31e; }
+.town.lv-Barriers { border-left-color: #d62d46; }
 .town-top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
-.town-name { font-weight: 800; color: var(--navy); font-size: 16px; }
+.town-name { font-weight: 800; color: var(--navy); font-size: 15.5px; }
 .muted { color: var(--muted); font-size: 12.5px; }
-.town-flow { font-size: 14px; }
-.town-why { font-size: 13px; color: #34475a; }
-.town-crew { font-size: 13px; font-weight: 600; }
-.town-note { font-size: 12.5px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 6px; }
-.lvl { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; border: 1px solid transparent; white-space: nowrap; }
+.town-flow { font-size: 13.5px; background: #f6fafe; padding: 6px 9px; border-radius: 8px; border: 1px solid var(--line-soft); }
+.town-why { font-size: 13px; color: #32485c; }
+.town-crew { font-size: 13px; font-weight: 700; color: var(--navy); }
+.town-note { font-size: 12px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 6px; }
+
+.lvl { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; border: 1px solid transparent; white-space: nowrap; }
 .lvl-Normal { background: var(--ok-bg); color: var(--ok-fg); border-color: var(--ok-bd); }
 .lvl-Standby { background: var(--sb-bg); color: var(--sb-fg); border-color: var(--sb-bd); }
 .lvl-Barriers { background: var(--bar-bg); color: var(--bar-fg); border-color: var(--bar-bd); }
 .lvl-Unknown { background: var(--unk-bg); color: var(--unk-fg); border-color: var(--unk-bd); }
-.presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
-.presets button { font-size: 13px; padding: 6px 12px; border-radius: 999px; background: #eef4fb; color: #0d5ca3; border: 1px solid #c9dff3; }
-.presets button:hover { background: #dfeefb; }
-textarea, input, select { width: 100%; font: inherit; padding: 9px 12px; border: 1.5px solid var(--line); border-radius: 9px; background: #fff; color: var(--text); }
-textarea:focus, input:focus, select:focus { outline: none; border-color: var(--blue); }
-label { display: block; font-size: 12.5px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+
+.presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 11px; }
+.presets button {
+  font-size: 12.5px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
+  background: #eef6fd; color: #0c589c; border: 1px solid #c7dff4; box-shadow: none;
+}
+.presets button:hover { background: #dfeffc; box-shadow: none; }
+
+textarea, input, select {
+  width: 100%; font: inherit; padding: 10px 13px;
+  border: 1.5px solid var(--line); border-radius: 11px;
+  background: #fcfefe; color: var(--text);
+}
+textarea:focus, input:focus, select:focus {
+  outline: none; border-color: var(--ocean);
+  box-shadow: 0 0 0 3px rgba(14, 107, 168, 0.12);
+}
+label { display: block; font-size: 12.5px; font-weight: 700; color: var(--muted); margin-bottom: 5px; }
 .row { display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
-.answer { margin-top: 14px; padding: 14px 16px; background: #f8fbfe; border: 1px solid var(--line); border-radius: 10px; }
+
+.answer-spotlight-label {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--ocean); background: #e3f2fd; padding: 3px 10px; border-radius: 999px;
+  margin-top: 14px;
+}
+.answer {
+  margin-top: 8px;
+  padding: 16px 18px;
+  background: linear-gradient(180deg, #f5faff 0%, #eef7fd 100%);
+  border: 2px solid #9ec9ec;
+  border-left: 6px solid var(--ocean);
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(14, 107, 168, 0.08);
+}
 .answer p { margin: 0 0 8px; }
-.answer h4 { margin: 12px 0 4px; font-size: 15px; color: var(--navy); }
+.answer p:last-child { margin-bottom: 0; }
+.answer h4 { margin: 12px 0 5px; font-size: 15px; color: var(--navy); }
 .answer ul { margin: 4px 0 8px 20px; padding: 0; }
 .answer li { margin-bottom: 4px; }
-.answer hr { border: 0; border-top: 1px solid var(--line); margin: 10px 0; }
-.usage { margin-top: 6px; font-size: 12px; color: var(--muted); }
-details.fold summary { cursor: pointer; font-weight: 700; color: var(--navy); font-size: 16px; }
+.answer code { background: #e1effb; padding: 1px 5px; border-radius: 6px; font-size: 12.5px; color: #0a3b68; }
+.answer hr { border: 0; border-top: 1px solid #cde1f2; margin: 10px 0; }
+.usage { margin-top: 7px; font-size: 12px; color: var(--muted); font-weight: 600; }
+
+details.fold summary { cursor: pointer; font-weight: 700; color: var(--navy); font-size: 15.5px; }
 details.fold[open] summary { margin-bottom: 12px; }
-.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+.table-wrap { overflow-x: auto; border: 1.5px solid var(--line); border-radius: 12px; -webkit-overflow-scrolling: touch; }
 table { border-collapse: collapse; width: 100%; min-width: 900px; font-size: 13.5px; }
-th, td { padding: 8px 10px; border-bottom: 1px solid #e8eef5; text-align: left; vertical-align: top; }
-th { background: #eef4fa; font-size: 12px; color: #1d4264; white-space: nowrap; }
+th, td { padding: 9px 11px; border-bottom: 1px solid #e8f0f7; text-align: left; vertical-align: top; }
+th { background: #edf5fc; font-size: 12px; color: #1a4163; white-space: nowrap; }
 .sources { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
-.brain-box { border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; background: #f6fafe; margin-top: 12px; }
+
+.brain-box { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; background: #f6fafe; margin-top: 12px; }
 .brain-box summary { cursor: pointer; font-weight: 700; color: var(--navy); font-size: 13.5px; }
 .brain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 12px; }
 .brain-btns { display: flex; gap: 8px; align-items: end; }
 .brain-help { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
-@media (max-width: 600px) { .hstatus { text-align: left; } }
+
+.fab-ai {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 35;
+  border-radius: 999px;
+  padding: 11px 16px;
+  font-size: 13.5px;
+  background: linear-gradient(135deg, #0b4f8a 0%, #0e8b94 100%);
+  box-shadow: 0 10px 24px rgba(11, 57, 99, 0.24);
+}
+.drawer-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(11, 37, 62, 0.42);
+  backdrop-filter: blur(2px);
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding: 14px;
+}
+.drawer-backdrop.open { display: flex; }
+.drawer-panel {
+  width: 100%;
+  max-width: 440px;
+  max-height: 86vh;
+  overflow-y: auto;
+  background: #fff;
+  border: 2px solid #b6d8f2;
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(9, 44, 76, 0.26);
+  padding: 16px;
+}
+.drawer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 12px;
+}
+.drawer-title { display: flex; align-items: center; gap: 9px; }
+.drawer-title b { color: var(--navy); font-size: 15.5px; display: block; }
+.drawer-title span { color: var(--muted); font-size: 12px; display: block; }
+.drawer-close {
+  padding: 6px 11px;
+  border-radius: 9px;
+  background: #edf4fb;
+  color: var(--navy);
+  box-shadow: none;
+  font-size: 13px;
+}
+.drawer-close:hover { background: #dcebfa; box-shadow: none; }
+
+@media (max-width: 640px) {
+  header { padding: 14px 0; }
+  h1 { font-size: 18.5px; }
+  .hstatus { text-align: left; max-width: 100%; border-radius: 12px; }
+  .card { padding: 14px; border-radius: 14px; }
+  button { width: 100%; justify-content: center; }
+  .presets button, .drawer-close, .fab-ai { width: auto; }
+  .fab-ai { right: 12px; bottom: 12px; padding: 10px 14px; font-size: 13px; }
+}
 </style>
 <script src="ai-brain.js"></script>
 </head>
 <body>
 <header>
   <div class="wrap">
-    <div>
-      <h1>RiverWatch</h1>
-      <small>Flood response decision support · 8 Irish towns</small>
+    <div class="brand-row">
+      <div class="brand-mascot" aria-hidden="true">💧</div>
+      <div>
+        <h1>RiverWatch <span class="tag-pill">8 Irish Towns</span></h1>
+        <small>Friendly flood decision support · Duty Officer &amp; Area Manager</small>
+      </div>
     </div>
     <div class="hstatus" id="status">Loading live data…</div>
   </div>
 </header>
-<div class="notice"><div class="wrap">AI can make mistakes; a person makes the final decision.</div></div>
+<div class="notice">
+  <div class="wrap">
+    <span>🤝 AI can make mistakes; a person makes the final decision.</span>
+  </div>
+</div>
 
 <div class="wrap">
 <main>
@@ -105,8 +305,8 @@ th { background: #eef4fa; font-size: 12px; color: #1d4264; white-space: nowrap; 
 
   <section class="card" id="plan">
     <div class="card-head">
-      <h2>Tonight's plan</h2>
-      <button class="ghost" id="btnRefresh" type="button">Refresh live data</button>
+      <h2><span class="step-dot">1</span> Tonight's plan</h2>
+      <button class="ghost" id="btnRefresh" type="button">🔄 Refresh live data</button>
     </div>
     <div class="kpis">
       <div class="kpi"><span>Barriers</span><b id="kpiBarriers">–</b></div>
@@ -121,7 +321,10 @@ th { background: #eef4fa; font-size: 12px; color: #1d4264; white-space: nowrap; 
   </section>
 
   <section class="card" id="ask">
-    <div class="card-head"><h2>Ask RiverWatch</h2></div>
+    <div class="card-head">
+      <h2><span class="step-dot">2</span> Ask RiverWatch</h2>
+      <button class="ghost" id="btnOpenDrawer" type="button">💬 Pop-out AI window</button>
+    </div>
     <div class="presets">
       <button type="button" data-q="What is tonight's plan?">Tonight's plan</button>
       <button type="button" data-q="Why is Fermoy at that level?">Why is Fermoy at that level?</button>
@@ -130,14 +333,15 @@ th { background: #eef4fa; font-size: 12px; color: #1d4264; white-space: nowrap; 
       <button type="button" data-q="Will my house in Mallow flood tonight?">Will my house in Mallow flood tonight?</button>
     </div>
     <textarea id="question" rows="2" placeholder="Ask about tonight's levels, a town, the crews, overrides or winter flood history">What is tonight's plan?</textarea>
-    <div class="row"><button id="btnAsk" type="button">Ask</button></div>
+    <div class="row"><button id="btnAsk" type="button">✨ Ask RiverWatch</button></div>
+    <div class="answer-spotlight-label">📌 Briefing Answer</div>
     <div class="answer" id="answerBox">The answer will appear here. Every question reads the Sheet, the river forecast and the warnings again first.</div>
     <div class="usage" id="usageBox"></div>
   </section>
 
   <section class="card">
     <details class="fold">
-      <summary>Show the working: numbers and sources</summary>
+      <summary>🔍 Show the working: numbers and sources</summary>
       <div class="table-wrap">
         <table>
           <thead>
@@ -155,13 +359,38 @@ th { background: #eef4fa; font-size: 12px; color: #1d4264; white-space: nowrap; 
 
   <section class="card">
     <details class="fold">
-      <summary>Settings: Google Sheet and AI key</summary>
+      <summary>⚙️ Settings: Google Sheet and AI key</summary>
       <label for="sheetUrl">Team Sheet (anyone with the link can view)</label>
       <input id="sheetUrl" type="text" value="https://docs.google.com/spreadsheets/d/1gjIlrEyJJiF2yW_znSD08Tmr5_WjdeKcSbmm6fa5HtA/edit?gid=0#gid=0">
       <div id="brain-settings"></div>
     </details>
   </section>
 </main>
+</div>
+
+<button class="fab-ai" id="btnFabAi" type="button" aria-label="Open RiverWatch AI assistant">💬 Ask AI</button>
+
+<div class="drawer-backdrop" id="aiDrawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitleText">
+  <div class="drawer-panel">
+    <div class="drawer-head">
+      <div class="drawer-title">
+        <span style="font-size:22px" aria-hidden="true">🛟</span>
+        <div>
+          <b id="drawerTitleText">RiverWatch Helper</b>
+          <span>Explains plan numbers · Duty Officer decides</span>
+        </div>
+      </div>
+      <button class="drawer-close" id="btnCloseDrawer" type="button">✕ Close</button>
+    </div>
+    <div class="presets" id="drawerPresets"></div>
+    <label for="drawerQuestion">Your question</label>
+    <textarea id="drawerQuestion" rows="2" placeholder="Type a question for RiverWatch..."></textarea>
+    <div class="row">
+      <button id="btnDrawerAsk" type="button">✨ Send question</button>
+    </div>
+    <div class="answer-spotlight-label">📌 Latest Answer</div>
+    <div class="answer" id="drawerAnswerMirror">Ask a question to see the briefing here.</div>
+  </div>
 </div>
 
 <script>
@@ -186,15 +415,66 @@ let historySummary = null;
   });
 })();
 
-document.querySelectorAll(".presets button").forEach(btn => {
+document.querySelectorAll("#ask .presets button").forEach(btn => {
   btn.onclick = () => { $("question").value = btn.dataset.q; };
 });
+
+(function initAiDrawer() {
+  const drawer = $("aiDrawer");
+  const openBtn = $("btnOpenDrawer");
+  const fabBtn = $("btnFabAi");
+  const closeBtn = $("btnCloseDrawer");
+  const dQ = $("drawerQuestion");
+  const dAsk = $("btnDrawerAsk");
+  const dPresets = $("drawerPresets");
+  const dMirror = $("drawerAnswerMirror");
+
+  document.querySelectorAll("#ask .presets button").forEach(origBtn => {
+    const clone = document.createElement("button");
+    clone.type = "button";
+    clone.textContent = origBtn.textContent;
+    clone.onclick = () => { dQ.value = origBtn.dataset.q; };
+    dPresets.appendChild(clone);
+  });
+
+  function syncMirror() {
+    dMirror.innerHTML = $("answerBox").innerHTML;
+  }
+
+  function openDrawer() {
+    dQ.value = $("question").value;
+    syncMirror();
+    drawer.classList.add("open");
+  }
+
+  function closeDrawer() {
+    drawer.classList.remove("open");
+  }
+
+  if (openBtn) openBtn.onclick = openDrawer;
+  if (fabBtn) fabBtn.onclick = openDrawer;
+  if (closeBtn) closeBtn.onclick = closeDrawer;
+  drawer.addEventListener("click", e => {
+    if (e.target === drawer) closeDrawer();
+  });
+
+  dAsk.onclick = async () => {
+    $("question").value = dQ.value;
+    dAsk.disabled = true;
+    dMirror.textContent = "Writing the answer from the checked numbers…";
+    try {
+      await $("btnAsk").onclick();
+    } finally {
+      syncMirror();
+      dAsk.disabled = false;
+    }
+  };
+})();
 
 function escapeHtml(s) {
   return String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
 }
 
-// Small, safe renderer for the AI's reply: **bold**, `- ` and `1.` lists, headings, rules.
 function renderMarkdown(src) {
   const inline = s => s.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>");
   const lines = escapeHtml(src).split("\n");
@@ -281,7 +561,6 @@ async function fetchGoogleSheet(url) {
   return parseCsv(await res.text());
 }
 
-// Always fetched fresh at the moment of each question (no cache).
 async function fetchLiveForecasts(histList) {
   const lats = histList.map(t => t.query_lat).join(",");
   const lons = histList.map(t => t.query_lon).join(",");
@@ -340,7 +619,6 @@ function normalizeWarnLevel(raw) {
 }
 function warnRank(lvl) { return { None: 0, Yellow: 1, Orange: 2, Red: 3 }[lvl] || 0; }
 
-// County from history, second county from the Sheet notes ("Town spans X and Y").
 function getTownCounties(hist, sheetNotes) {
   const list = [hist.county];
   const m = String(sheetNotes || "").match(/spans\s+[a-z\s'-]+\s+and\s+([a-z\s'-]+)/i);
@@ -351,7 +629,6 @@ function getTownCounties(hist, sheetNotes) {
   return list;
 }
 
-// Plan section 4: orange or red RAIN warnings in force at any time in the next 48 hours.
 function getCountyRainWarning48h(counties, warnings, nowMs) {
   const horizonMs = nowMs + 48 * 3600 * 1000;
   const lowerCounties = counties.map(c => c.toLowerCase());
@@ -380,7 +657,6 @@ function getCountyRainWarning48h(counties, warnings, nowMs) {
   return { level: bestLevel, details: matchedTexts };
 }
 
-// Plan section 6: three crews, at most two towns each, only inside their area; notes can restrict a crew.
 function allocateCrews(towns) {
   const area = {};
   Object.keys(CREWS).forEach(c => {
@@ -440,13 +716,11 @@ function evaluateFloodPlan(histList, sheetRows, forecasts, warnRes) {
     const sheetNotes = String(s.notes || "").trim();
     const countiesMatched = getTownCounties(hist, sheetNotes);
 
-    // Rule 2 and 5: forecast peak = highest of today and the next two days; an override replaces it.
     const rawFlowOv = String(s.flow_override_m3s ?? "").replace(/,/g, "").trim();
     const hasFlowOverride = rawFlowOv !== "" && !isNaN(Number(rawFlowOv));
     const liveFlow = (fc.peak_3d_m3s !== null && fc.peak_3d_m3s !== undefined) ? Number(fc.peak_3d_m3s) : null;
     const effectiveFlow = hasFlowOverride ? Number(rawFlowOv) : liveFlow;
 
-    // Rule 3: levels.
     let baseAction = "Unknown", levelReason;
     const ruleNotes = [];
     if (effectiveFlow === null) {
@@ -465,7 +739,6 @@ function evaluateFloodPlan(histList, sheetRows, forecasts, warnRes) {
       }
     }
 
-    // Rule 4 and 5: higher of the live warning and warning_override.
     const rawWarnOv = String(s.warning_override ?? "").trim();
     const overrideWarn = normalizeWarnLevel(rawWarnOv);
     const hasWarnOverride = rawWarnOv !== "" && overrideWarn !== "None";
@@ -566,13 +839,14 @@ function renderPlan(ev) {
 
   $("crews").innerHTML = Object.keys(CREWS).map(c => {
     const list = (cs.assignments || {})[c] || [];
-    return `<div class="crew"><b>${escapeHtml(c)} crew</b><br>${escapeHtml(list.length ? list.join(" and ") : "No barrier job tonight")}</div>`;
+    return `<div class="crew"><b>🚤 ${escapeHtml(c)} crew</b><br>${escapeHtml(list.length ? list.join(" and ") : "No barrier job tonight")}</div>`;
   }).join("");
 
   const flags = cs.area_manager_flags || [];
-  $("flags").textContent = flags.length ? `Flagged to the Area Manager: ${flags.join(", ")}` : "";
+  $("flags").textContent = flags.length ? `🚩 Flagged to the Area Manager: ${flags.join(", ")}` : "";
 
   $("towns").innerHTML = towns.map(t => {
+    const badgeEmoji = t.final_action === "Normal" ? "🟢" : t.final_action === "Standby" ? "🟡" : t.final_action === "Barriers" ? "🔴" : "⚪";
     const flowLabel = t.flow_override_in_use !== null ? "rehearsal flow" : "3-day peak";
     const flowTxt = t.effective_flow_m3s !== null
       ? `<b>${t.effective_flow_m3s.toFixed(2)}</b> m³/s ${flowLabel}`
@@ -585,7 +859,7 @@ function renderPlan(ev) {
       <div class="town lv-${t.final_action}">
         <div class="town-top">
           <div><div class="town-name">${escapeHtml(t.town)}</div><div class="muted">${escapeHtml(t.river)} · ${escapeHtml(t.counties_matched.join(" / "))}</div></div>
-          <span class="lvl lvl-${t.final_action}">${t.final_action}</span>
+          <span class="lvl lvl-${t.final_action}">${badgeEmoji} ${t.final_action}</span>
         </div>
         <div class="town-flow">${flowTxt} <span class="muted">(p95 ${t.p95_m3s} · p99 ${t.p99_m3s})</span></div>
         <div class="town-why">${escapeHtml(t.level_reason)}</div>
@@ -677,6 +951,7 @@ $("btnAsk").onclick = async () => {
   try {
     const state = await refreshAllLiveData();
     $("answerBox").textContent = "Writing the answer from the checked numbers…";
+    if ($("drawerAnswerMirror")) $("drawerAnswerMirror").textContent = "Writing the answer from the checked numbers…";
     $("usageBox").textContent = "";
 
     const systemPrompt = [
@@ -696,10 +971,14 @@ $("btnAsk").onclick = async () => {
 
     const userPrompt = `Question:\n${question}\n\nChecked data:\n${JSON.stringify(state)}`;
     const ans = await window.Brain.ask(systemPrompt, userPrompt);
-    $("answerBox").innerHTML = renderMarkdown(ans.text || "(empty reply)");
+    const rendered = renderMarkdown(ans.text || "(empty reply)");
+    $("answerBox").innerHTML = rendered;
+    if ($("drawerAnswerMirror")) $("drawerAnswerMirror").innerHTML = rendered;
     if (typeof window.Brain.usageLine === "function") $("usageBox").textContent = window.Brain.usageLine(ans);
   } catch (e) {
-    $("answerBox").textContent = `Error: ${e.message}`;
+    const errMsg = `Error: ${e.message}`;
+    $("answerBox").textContent = errMsg;
+    if ($("drawerAnswerMirror")) $("drawerAnswerMirror").textContent = errMsg;
   } finally {
     $("btnAsk").disabled = false;
   }
