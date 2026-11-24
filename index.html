@@ -6,23 +6,23 @@
 <title>RiverWatch · Flood response decision support</title>
 <style>
 :root {
-  --bg: #f6efe2;
-  --bg-deep: #ece1cd;
-  --card: #fdf9f2;
-  --card-warm: #f7efe0;
-  --line: #d5c4a8;
-  --line-strong: #b9a17c;
-  --text: #261b12;
-  --muted: #695544;
-  --ink-navy: #1f3a4d;
-  --rust: #9e3b24;
-  --forest: #245c3c;
-  --amber: #8f5a08;
+  --bg: #e2f0f7;
+  --bg-deep: #cbe2ee;
+  --card: #f7fcfe;
+  --card-warm: #e6f3f9;
+  --line: #a4cae0;
+  --line-strong: #73a8c4;
+  --text: #072233;
+  --muted: #295670;
+  --ink-navy: #064466;
+  --rust: #0369a1;
+  --forest: #0f766e;
+  --amber: #8a5308;
 
-  --ok-bg: #e3f0e7; --ok-fg: #1d5936; --ok-bd: #9dc5ab;
-  --sb-bg: #f9eccb; --sb-fg: #7c4d05; --sb-bd: #dfc078;
-  --bar-bg: #f7dcd7; --bar-fg: #8f2419; --bar-bd: #dfa095;
-  --unk-bg: #ece5d8; --unk-fg: #544638; --unk-bd: #c7baa6;
+  --ok-bg: #d7f0e4; --ok-fg: #115838; --ok-bd: #83c7a6;
+  --sb-bg: #f6ecc9; --sb-fg: #784906; --sb-bd: #dec074;
+  --bar-bg: #f7dad6; --bar-fg: #8c2017; --bar-bd: #dd9b91;
+  --unk-bg: #daeaf2; --unk-fg: #284f65; --unk-bd: #a2c7da;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -30,30 +30,29 @@ body {
   margin: 0;
   font: 15px/1.6 Georgia, "Times New Roman", serif;
   background:
-    radial-gradient(circle at 12% 8%, rgba(158, 59, 36, 0.06) 0%, transparent 38%),
-    radial-gradient(circle at 88% 16%, rgba(31, 58, 77, 0.08) 0%, transparent 42%),
+    radial-gradient(circle at 10% 6%, rgba(2, 132, 199, 0.09) 0%, transparent 42%),
+    radial-gradient(circle at 90% 14%, rgba(15, 118, 110, 0.09) 0%, transparent 45%),
     linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
   color: var(--text);
   min-height: 100vh;
 }
 .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
 
-/* Vintage ledger header */
 header {
-  background: linear-gradient(135deg, #2d1c12 0%, #3d2618 55%, #233846 100%);
-  color: #fbf4e6;
+  background: linear-gradient(135deg, #052336 0%, #074b70 55%, #0a6378 100%);
+  color: #edf8fc;
   padding: 18px 0;
-  border-bottom: 3px solid #b59463;
-  box-shadow: 0 6px 20px rgba(38, 27, 18, 0.16);
+  border-bottom: 3px solid #4fb3d4;
+  box-shadow: 0 6px 20px rgba(5, 35, 54, 0.16);
 }
 header .wrap { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
 .brand-row { display: flex; align-items: center; gap: 13px; }
 .brand-mascot {
   width: 46px; height: 46px; border-radius: 12px;
-  background: #fdf6e7;
-  border: 2px solid #c7a572;
+  background: #eaf6fb;
+  border: 2px solid #72bdd8;
   display: grid; place-items: center; font-size: 23px; flex-shrink: 0;
-  box-shadow: inset 0 0 0 2px rgba(158, 59, 36, 0.12);
+  box-shadow: inset 0 0 0 2px rgba(3, 105, 161, 0.14);
 }
 h1 {
   margin: 0;
@@ -64,21 +63,21 @@ h1 {
 .tag-pill {
   font-family: system-ui, -apple-system, sans-serif;
   font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px;
-  background: rgba(251, 244, 230, 0.16); border: 1px solid rgba(227, 198, 152, 0.45); color: #f7ebd4;
+  background: rgba(237, 248, 252, 0.16); border: 1px solid rgba(153, 217, 238, 0.5); color: #dcf2fa;
 }
-header small { display: block; color: #e2cfb1; font-size: 13px; margin-top: 2px; font-family: system-ui, -apple-system, sans-serif; }
+header small { display: block; color: #bce2f0; font-size: 13px; margin-top: 2px; font-family: system-ui, -apple-system, sans-serif; }
 .hstatus {
   font-family: system-ui, -apple-system, sans-serif;
-  color: #f9f0de; font-size: 12.5px; max-width: 560px; text-align: right;
-  background: rgba(255, 249, 236, 0.12); padding: 6px 12px; border-radius: 999px;
-  border: 1px solid rgba(227, 198, 152, 0.35);
+  color: #edf8fc; font-size: 12.5px; max-width: 560px; text-align: right;
+  background: rgba(237, 248, 252, 0.14); padding: 6px 12px; border-radius: 999px;
+  border: 1px solid rgba(153, 217, 238, 0.38);
 }
-.hstatus.bad { background: #fbe1dc; color: #8f2419; border-color: #e3a79c; font-weight: 700; }
+.hstatus.bad { background: #f7dad6; color: #8c2017; border-color: #dd9b91; font-weight: 700; }
 
 .notice {
-  background: #f5e6c4;
-  border-bottom: 1.5px solid #d7be88;
-  color: #5a3a09;
+  background: #d6edf7;
+  border-bottom: 1.5px solid #9bc8df;
+  color: #064466;
   font-family: system-ui, -apple-system, sans-serif;
   font-size: 13.5px;
   font-weight: 600;
@@ -91,40 +90,40 @@ main { display: grid; gap: 18px; padding: 18px 0 88px; }
   border: 1.5px solid var(--line);
   border-radius: 14px;
   padding: 18px 20px;
-  box-shadow: 0 6px 18px rgba(59, 39, 22, 0.06);
+  box-shadow: 0 6px 18px rgba(6, 68, 102, 0.06);
 }
 .card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
 h2 { margin: 0; font-size: 17.5px; color: var(--text); display: flex; align-items: center; gap: 9px; }
 .step-dot {
   font-family: system-ui, -apple-system, sans-serif;
   width: 26px; height: 26px; border-radius: 8px;
-  background: #eadbc1; border: 1px solid var(--line-strong); color: var(--rust);
+  background: #d7edf7; border: 1px solid var(--line-strong); color: #055078;
   display: inline-grid; place-items: center; font-size: 13px; font-weight: 800;
 }
 
 .banner {
   display: none; padding: 11px 15px; border-radius: 11px;
-  background: #fbe4e0; border: 1.5px solid #e2a499; color: #8f2419;
+  background: #f7dad6; border: 1.5px solid #dd9b91; color: #8c2017;
   font-family: system-ui, -apple-system, sans-serif;
   font-size: 13.5px; font-weight: 600;
 }
 
 button {
   font-family: system-ui, -apple-system, sans-serif;
-  font-weight: 700; padding: 9px 16px; border: 1px solid #7d2b18; border-radius: 10px;
-  background: linear-gradient(180deg, #ab4229 0%, #8f321c 100%);
-  color: #fff9ee; cursor: pointer;
-  box-shadow: 0 3px 9px rgba(143, 50, 28, 0.2);
+  font-weight: 700; padding: 9px 16px; border: 1px solid #054a6e; border-radius: 10px;
+  background: linear-gradient(180deg, #0872a6 0%, #055078 100%);
+  color: #f4fbfe; cursor: pointer;
+  box-shadow: 0 3px 9px rgba(5, 80, 120, 0.2);
   transition: transform 0.12s ease, filter 0.15s ease;
 }
-button:hover { filter: brightness(1.05); transform: translateY(-1px); }
+button:hover { filter: brightness(1.06); transform: translateY(-1px); }
 button:active { transform: translateY(0); }
 button:disabled { opacity: .55; cursor: not-allowed; transform: none; }
 button.ghost {
-  background: #f3e8d2; color: var(--text);
+  background: #dff0f8; color: var(--text);
   border: 1px solid var(--line-strong); box-shadow: none;
 }
-button.ghost:hover { background: #eadbc0; }
+button.ghost:hover { background: #c8e4f2; }
 
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 11px; margin-bottom: 14px; }
 .kpi {
@@ -139,9 +138,98 @@ button.ghost:hover { background: #eadbc0; }
 }
 .kpi b { font-size: 24px; color: var(--text); line-height: 1.2; margin-top: 2px; display: block; }
 
+/* Added chart widgets from live flow & p99 data */
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.chart-panel {
+  background: #f1f9fd;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.chart-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+.chart-top b { font-size: 13px; color: var(--ink-navy); }
+.chart-legend {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--muted);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+.leg-dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+.flow-chart {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  align-items: end;
+  min-height: 170px;
+  padding: 12px 8px 6px;
+  background: linear-gradient(180deg, #ffffff 0%, #e4f2f9 100%);
+  border: 1px solid #c3deec;
+  border-radius: 10px;
+}
+.f-col { display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.f-val { font-family: system-ui, -apple-system, sans-serif; font-size: 10.5px; font-weight: 700; color: var(--ink-navy); }
+.f-bar {
+  width: 100%; max-width: 34px; min-height: 6px;
+  border-radius: 7px 7px 3px 3px;
+  background: linear-gradient(180deg, #38bdf8 0%, #0369a1 100%);
+  border: 1px solid #04527a;
+}
+.f-bar.lv-Standby { background: linear-gradient(180deg, #fbbf24 0%, #b45309 100%); border-color: #92400e; }
+.f-bar.lv-Barriers { background: linear-gradient(180deg, #f87171 0%, #b91c1c 100%); border-color: #991b1b; }
+.f-lbl {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 10.5px; font-weight: 700; color: var(--muted);
+  text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;
+}
+.ratio-list {
+  display: grid;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.ratio-row {
+  background: #ffffff;
+  border: 1px solid #c8e1ee;
+  border-radius: 9px;
+  padding: 8px 10px;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 12px;
+}
+.ratio-head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+.ratio-head b { color: var(--text); }
+.ratio-head span { color: var(--muted); font-weight: 600; }
+.ratio-track {
+  width: 100%; height: 8px; background: #e3f1f8; border-radius: 999px; overflow: hidden;
+}
+.ratio-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #0369a1);
+  border-radius: 999px;
+}
+.ratio-fill.warn { background: linear-gradient(90deg, #fbbf24, #b45309); }
+.ratio-fill.danger { background: linear-gradient(90deg, #f87171, #b91c1c); }
+
 .crews { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-bottom: 10px; }
 .crew {
-  background: linear-gradient(180deg, #faf3e4 0%, #f1e4ca 100%);
+  background: linear-gradient(180deg, #eef8fc 0%, #d7edf7 100%);
   border: 1px solid var(--line-strong);
   border-radius: 11px;
   padding: 11px 13px;
@@ -154,7 +242,7 @@ button.ghost:hover { background: #eadbc0; }
 
 .towns { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
 .town {
-  background: #fffcf6;
+  background: #f5fbfe;
   border: 1.5px solid var(--line);
   border-left: 5px solid var(--unk-bd);
   border-radius: 12px;
@@ -162,18 +250,18 @@ button.ghost:hover { background: #eadbc0; }
   display: grid; gap: 6px; align-content: start;
   transition: transform 0.14s ease, box-shadow 0.14s ease;
 }
-.town:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(59, 39, 22, 0.08); }
-.town.lv-Normal { border-left-color: #2f7d4e; }
-.town.lv-Standby { border-left-color: #c78618; }
-.town.lv-Barriers { border-left-color: #b82d1e; }
+.town:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(6, 68, 102, 0.08); }
+.town.lv-Normal { border-left-color: #15803d; }
+.town.lv-Standby { border-left-color: #b45309; }
+.town.lv-Barriers { border-left-color: #b91c1c; }
 .town-top { display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
 .town-name { font-weight: 800; color: var(--text); font-size: 16px; }
 .muted { color: var(--muted); font-size: 12.5px; font-family: system-ui, -apple-system, sans-serif; }
 .town-flow {
   font-family: system-ui, -apple-system, sans-serif;
-  font-size: 13px; background: #f6ede0; padding: 6px 9px; border-radius: 8px; border: 1px solid #e3d3ba;
+  font-size: 13px; background: #e6f3f9; padding: 6px 9px; border-radius: 8px; border: 1px solid #bcdbe9;
 }
-.town-why { font-size: 13.5px; color: #362619; }
+.town-why { font-size: 13.5px; color: #102e40; }
 .town-crew { font-family: system-ui, -apple-system, sans-serif; font-size: 13px; font-weight: 700; color: var(--ink-navy); }
 .town-note { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 6px; }
 
@@ -189,18 +277,18 @@ button.ghost:hover { background: #eadbc0; }
 .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 11px; }
 .presets button {
   font-size: 12.5px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
-  background: #f5ebd8; color: #5b2517; border: 1px solid #cfb894; box-shadow: none;
+  background: #d7edf7; color: #064466; border: 1px solid #84bbd4; box-shadow: none;
 }
-.presets button:hover { background: #ebd9b9; }
+.presets button:hover { background: #bfe1f0; }
 
 textarea, input, select {
   width: 100%; font: inherit; padding: 10px 13px;
   border: 1.5px solid var(--line-strong); border-radius: 10px;
-  background: #fffdf9; color: var(--text);
+  background: #ffffff; color: var(--text);
 }
 textarea:focus, input:focus, select:focus {
-  outline: none; border-color: var(--rust);
-  box-shadow: 0 0 0 3px rgba(158, 59, 36, 0.13);
+  outline: none; border-color: #0369a1;
+  box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.14);
 }
 label {
   font-family: system-ui, -apple-system, sans-serif;
@@ -212,25 +300,25 @@ label {
   font-family: system-ui, -apple-system, sans-serif;
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
-  color: var(--rust); background: #f8e5ca; border: 1px solid #d9b98b; padding: 3px 11px; border-radius: 999px;
+  color: #055078; background: #d7edf7; border: 1px solid #84bbd4; padding: 3px 11px; border-radius: 999px;
   margin-top: 14px;
 }
 .answer {
   margin-top: 8px;
   padding: 16px 18px;
-  background: linear-gradient(180deg, #fffcf5 0%, #f9f0de 100%);
-  border: 2px solid #c5a370;
-  border-left: 6px solid var(--rust);
+  background: linear-gradient(180deg, #ffffff 0%, #e5f3fa 100%);
+  border: 2px solid #72bdd8;
+  border-left: 6px solid #0369a1;
   border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(59, 39, 22, 0.08);
+  box-shadow: 0 6px 18px rgba(6, 68, 102, 0.08);
 }
 .answer p { margin: 0 0 8px; }
 .answer p:last-child { margin-bottom: 0; }
 .answer h4 { margin: 12px 0 5px; font-size: 15px; color: var(--text); }
 .answer ul { margin: 4px 0 8px 20px; padding: 0; }
 .answer li { margin-bottom: 5px; }
-.answer code { background: #efe2cb; padding: 1px 5px; border-radius: 5px; font-size: 12.5px; color: #5b2517; }
-.answer hr { border: 0; border-top: 1px solid #d9c4a3; margin: 10px 0; }
+.answer code { background: #d4ebf5; padding: 1px 5px; border-radius: 5px; font-size: 12.5px; color: #064466; }
+.answer hr { border: 0; border-top: 1px solid #a6cee2; margin: 10px 0; }
 .usage {
   font-family: system-ui, -apple-system, sans-serif;
   margin-top: 7px; font-size: 12px; color: var(--muted); font-weight: 600;
@@ -240,17 +328,16 @@ details.fold summary { cursor: pointer; font-weight: 700; color: var(--text); fo
 details.fold[open] summary { margin-bottom: 12px; }
 .table-wrap { overflow-x: auto; border: 1.5px solid var(--line); border-radius: 11px; -webkit-overflow-scrolling: touch; }
 table { border-collapse: collapse; width: 100%; min-width: 900px; font-size: 13.5px; font-family: system-ui, -apple-system, sans-serif; }
-th, td { padding: 9px 11px; border-bottom: 1px solid #eadec9; text-align: left; vertical-align: top; }
-th { background: #efe3cc; font-size: 12px; color: #382516; white-space: nowrap; }
+th, td { padding: 9px 11px; border-bottom: 1px solid #d4e8f2; text-align: left; vertical-align: top; }
+th { background: #d6ebf5; font-size: 12px; color: #064466; white-space: nowrap; }
 .sources { margin-top: 10px; font-size: 12.5px; color: var(--muted); font-family: system-ui, -apple-system, sans-serif; }
 
-.brain-box { border: 1px solid var(--line); border-radius: 11px; padding: 10px 14px; background: #faf3e4; margin-top: 12px; }
+.brain-box { border: 1px solid var(--line); border-radius: 11px; padding: 10px 14px; background: #eaf5fa; margin-top: 12px; }
 .brain-box summary { cursor: pointer; font-weight: 700; color: var(--text); font-size: 13.5px; }
 .brain-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 12px; }
 .brain-btns { display: flex; gap: 8px; align-items: end; }
 .brain-help { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
 
-/* Vintage floating AI button & full-screen mobile chat window */
 .fab-ai {
   position: fixed;
   right: 18px;
@@ -259,17 +346,17 @@ th { background: #efe3cc; font-size: 12px; color: #382516; white-space: nowrap; 
   border-radius: 999px;
   padding: 11px 16px;
   font-size: 13.5px;
-  background: linear-gradient(180deg, #3a2315 0%, #24150c 100%);
-  border: 1.5px solid #cfa972;
-  color: #fbf3e4;
-  box-shadow: 0 10px 24px rgba(38, 27, 18, 0.28);
+  background: linear-gradient(180deg, #074b70 0%, #052336 100%);
+  border: 1.5px solid #72bdd8;
+  color: #edf8fc;
+  box-shadow: 0 10px 24px rgba(5, 35, 54, 0.32);
 }
 .drawer-backdrop {
   display: none;
   position: fixed;
   inset: 0;
   z-index: 40;
-  background: rgba(34, 21, 12, 0.52);
+  background: rgba(5, 35, 54, 0.56);
   backdrop-filter: blur(2px);
   justify-content: flex-end;
   align-items: flex-end;
@@ -278,13 +365,13 @@ th { background: #efe3cc; font-size: 12px; color: #382516; white-space: nowrap; 
 .drawer-backdrop.open { display: flex; }
 .drawer-panel {
   width: 100%;
-  max-width: 460px;
-  max-height: 86vh;
+  max-width: 480px;
+  max-height: 88vh;
   overflow-y: auto;
-  background: #fdf8ee;
-  border: 2px solid #c5a370;
+  background: #f5fbfe;
+  border: 2px solid #72bdd8;
   border-radius: 16px;
-  box-shadow: 0 18px 40px rgba(34, 21, 12, 0.34);
+  box-shadow: 0 18px 40px rgba(5, 35, 54, 0.36);
   padding: 16px;
 }
 .drawer-head {
@@ -302,15 +389,17 @@ th { background: #efe3cc; font-size: 12px; color: #382516; white-space: nowrap; 
 .drawer-close {
   padding: 6px 11px;
   border-radius: 9px;
-  background: #f1e4ca;
+  background: #d7edf7;
   color: var(--text);
   border: 1px solid var(--line-strong);
   box-shadow: none;
   font-size: 13px;
 }
-.drawer-close:hover { background: #e6d5b5; }
+.drawer-close:hover { background: #bfe1f0; }
 
-/* On mobile screens, the AI chat window opens full-screen for effortless reading & typing */
+@media (max-width: 820px) {
+  .dash-grid { grid-template-columns: 1fr; }
+}
 @media (max-width: 640px) {
   header { padding: 14px 0; }
   h1 { font-size: 19px; }
@@ -338,7 +427,7 @@ th { background: #efe3cc; font-size: 12px; color: #382516; white-space: nowrap; 
 <header>
   <div class="wrap">
     <div class="brand-row">
-      <div class="brand-mascot" aria-hidden="true">📜</div>
+      <div class="brand-mascot" aria-hidden="true">🌊</div>
       <div>
         <h1>RiverWatch <span class="tag-pill">8 Irish Towns</span></h1>
         <small>Flood response decision support · Duty Officer &amp; Area Manager</small>
@@ -372,6 +461,27 @@ th { background: #efe3cc; font-size: 12px; color: #382516; white-space: nowrap; 
       <div class="kpi"><span>Unknown</span><b id="kpiUnknown">–</b></div>
       <div class="kpi"><span>Flagged to Area Manager</span><b id="kpiFlags">–</b></div>
     </div>
+    <div class="dash-grid">
+      <div class="chart-panel">
+        <div class="chart-top">
+          <b>📊 Effective flow used by town (m³/s)</b>
+          <div class="chart-legend">
+            <span><i class="leg-dot" style="background:#0284c7"></i>Normal</span>
+            <span><i class="leg-dot" style="background:#d97706"></i>Standby</span>
+            <span><i class="leg-dot" style="background:#dc2626"></i>Barriers</span>
+          </div>
+        </div>
+        <div class="flow-chart" id="flowChart"></div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-top">
+          <b>📈 Flow vs. 99th percentile threshold (p99)</b>
+          <span class="muted" id="flowMaxLabel">m³/s</span>
+        </div>
+        <div class="ratio-list" id="p99RatioList"></div>
+      </div>
+    </div>
+
     <div class="crews" id="crews"></div>
     <div class="flags" id="flags"></div>
     <div class="towns" id="towns"></div>
@@ -490,6 +600,55 @@ document.querySelectorAll("#drawerPresets button").forEach(btn => {
 
 function escapeHtml(s) {
   return String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+}
+
+function buildVisualAnswerCards(state) {
+  if (!state || !Array.isArray(state.towns)) return "";
+  const towns = state.towns;
+  const wf = state.what_if;
+
+  let whatIfHtml = "";
+  if (wf && wf.town) {
+    const pctText = wf.level_from_flow_only === "Barriers" && typeof wf.pct_above_p99 === "number"
+      ? ` · +${wf.pct_above_p99}% vs p99`
+      : "";
+    whatIfHtml = `
+      <div style="margin-bottom:10px;padding:10px 12px;border-radius:10px;background:#dff0f8;border:1px solid #88bdd6;font-family:system-ui,-apple-system,sans-serif;font-size:12.5px;color:#064466;">
+        <b>🧪 What-if flow check (${escapeHtml(wf.town)} · ${escapeHtml(wf.river)}):</b>
+        <b>${Number(wf.flow_m3s).toFixed(1)} m³/s</b> →
+        <span class="lvl lvl-${escapeHtml(wf.level_from_flow_only)}">${escapeHtml(wf.level_from_flow_only)}</span>${escapeHtml(pctText)}
+        <div style="color:#295670;margin-top:3px;">${escapeHtml(wf.note || "")}</div>
+      </div>`;
+  }
+
+  const barsHtml = towns.map(t => {
+    const eff = (typeof t.effective_flow_m3s === "number" && !isNaN(t.effective_flow_m3s)) ? t.effective_flow_m3s : 0;
+    const p99 = (typeof t.p99_m3s === "number" && t.p99_m3s > 0) ? t.p99_m3s : 1;
+    const pct = Math.max(4, Math.min(100, Math.round((eff / p99) * 100)));
+    const lvClass = ["Normal", "Standby", "Barriers"].includes(t.final_action) ? `lv-${t.final_action}` : "";
+    return `
+      <div style="background:#ffffff;border:1px solid #c5dfed;border-radius:9px;padding:8px 10px;font-family:system-ui,-apple-system,sans-serif;font-size:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:4px;">
+          <b style="color:#072233">${escapeHtml(t.town)}</b>
+          <span class="lvl lvl-${escapeHtml(t.final_action)}" style="padding:1px 7px;font-size:11px;">${escapeHtml(t.final_action)}</span>
+        </div>
+        <div style="color:#295670;font-size:11px;margin-bottom:5px;">Flow <b>${eff.toFixed(1)}</b> / p99 ${p99.toFixed(1)} m³/s</div>
+        <div class="ratio-track" style="height:6px;">
+          <div class="ratio-fill ${lvClass === "lv-Barriers" ? "danger" : lvClass === "lv-Standby" ? "warn" : ""}" style="width:${pct}%"></div>
+        </div>
+      </div>`;
+  }).join("");
+
+  return `
+    <div style="margin-bottom:12px;padding-bottom:10px;border-bottom:1.5px solid #b5d7e8;">
+      ${whatIfHtml}
+      <div style="font-family:system-ui,-apple-system,sans-serif;font-size:11.5px;font-weight:800;color:#064466;margin-bottom:7px;">
+        📊 Visual Data Snapshot (8 Towns · Flow vs. p99)
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:8px;">
+        ${barsHtml}
+      </div>
+    </div>`;
 }
 
 function renderMarkdown(src) {
@@ -862,6 +1021,47 @@ function evaluateFloodPlan(histList, sheetRows, forecasts, warnRes) {
   return { towns: evaluated, crew_summary: crewSummary };
 }
 
+function renderDashboardCharts(towns) {
+  const flowEl = $("flowChart");
+  const ratioEl = $("p99RatioList");
+  const maxLbl = $("flowMaxLabel");
+  if (!flowEl || !ratioEl) return;
+
+  const flows = towns.map(t => (typeof t.effective_flow_m3s === "number" && !isNaN(t.effective_flow_m3s)) ? t.effective_flow_m3s : 0);
+  const maxFlow = Math.max(1, ...flows);
+  if (maxLbl) maxLbl.textContent = `Peak: ${maxFlow.toFixed(1)} m³/s`;
+
+  flowEl.innerHTML = towns.map((t, i) => {
+    const val = flows[i];
+    const hPct = Math.max(6, Math.min(100, Math.round((val / maxFlow) * 100)));
+    const lvClass = ["Normal", "Standby", "Barriers"].includes(t.final_action) ? `lv-${t.final_action}` : "";
+    return `
+      <div class="f-col" title="${escapeHtml(t.town)} (${escapeHtml(t.river)}): ${val.toFixed(2)} m³/s · ${escapeHtml(t.final_action)}">
+        <span class="f-val">${val.toFixed(1)}</span>
+        <div class="f-bar ${lvClass}" style="height:${hPct}%"></div>
+        <span class="f-lbl">${escapeHtml(t.town)}</span>
+      </div>`;
+  }).join("");
+
+  ratioEl.innerHTML = towns.map(t => {
+    const eff = (typeof t.effective_flow_m3s === "number" && !isNaN(t.effective_flow_m3s)) ? t.effective_flow_m3s : 0;
+    const p99 = (typeof t.p99_m3s === "number" && t.p99_m3s > 0) ? t.p99_m3s : 1;
+    const ratioPct = Math.round((eff / p99) * 100);
+    const barWidth = Math.max(4, Math.min(100, ratioPct));
+    const fillClass = ratioPct >= 100 ? "danger" : (t.final_action === "Standby" || ratioPct >= 75) ? "warn" : "";
+    return `
+      <div class="ratio-row">
+        <div class="ratio-head">
+          <b>${escapeHtml(t.town)} <span class="muted">(${escapeHtml(t.river)})</span></b>
+          <span>${eff.toFixed(1)} / ${p99.toFixed(1)} m³/s (${ratioPct}% p99)</span>
+        </div>
+        <div class="ratio-track">
+          <div class="ratio-fill ${fillClass}" style="width:${barWidth}%"></div>
+        </div>
+      </div>`;
+  }).join("");
+}
+
 function renderPlan(ev) {
   const towns = ev.towns, cs = ev.crew_summary || {};
   const count = lv => towns.filter(t => t.final_action === lv).length;
@@ -901,6 +1101,8 @@ function renderPlan(ev) {
         ${notes.length ? `<div class="town-note">${notes.map(escapeHtml).join("<br>")}</div>` : ""}
       </div>`;
   }).join("");
+
+  renderDashboardCharts(towns);
 
   $("townTableBody").innerHTML = towns.map(t => {
     const today = t.today_m3s !== null ? t.today_m3s.toFixed(2) : "–";
@@ -1007,7 +1209,7 @@ $("btnAsk").onclick = async () => {
     const userPrompt = `Question:\n${question}\n\nChecked data:\n${JSON.stringify(state)}`;
     const ans = await window.Brain.ask(systemPrompt, userPrompt);
     const rendered = renderMarkdown(ans.text || "(empty reply)");
-    $("answerBox").innerHTML = rendered;
+    $("answerBox").innerHTML = buildVisualAnswerCards(state) + rendered;
     if (typeof window.Brain.usageLine === "function") $("usageBox").textContent = window.Brain.usageLine(ans);
   } catch (e) {
     const errMsg = `Error: ${e.message}`;
