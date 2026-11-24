@@ -393,10 +393,12 @@
         } else {
           if (ch === '"') { inQuotes = true; }
           else if (ch === ",") { row.push(cell.trim()); cell = ""; }
-          else if (ch === "" && next === "
+          else if (ch === "
+" && next === "
 ") { row.push(cell.trim()); rows.push(row); row = []; cell = ""; i++; }
           else if (ch === "
-" || ch === "") { row.push(cell.trim()); rows.push(row); row = []; cell = ""; }
+" || ch === "
+") { row.push(cell.trim()); rows.push(row); row = []; cell = ""; }
           else { cell += ch; }
         }
       }
