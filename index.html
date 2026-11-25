@@ -840,31 +840,29 @@ function getTownCounties(hist, sheetNotes) {
   return list;
 }
 
+// Met Éireann writes regions as FIPS codes (Cork = EI04), not county names.
+// Table copied from "Met Éireann Warning RSS/CAP/JSON Description" (revised 11 June 2020).
+const FIPS = {carlow:"EI01",cavan:"EI02",clare:"EI03",cork:"EI04",donegal:"EI06",dublin:"EI07",galway:"EI10",kerry:"EI11",kildare:"EI12",kilkenny:"EI13",leitrim:"EI14",laois:"EI15",limerick:"EI16",longford:"EI18",louth:"EI19",mayo:"EI20",meath:"EI21",monaghan:"EI22",offaly:"EI23",roscommon:"EI24",sligo:"EI25",tipperary:"EI26",waterford:"EI27",westmeath:"EI29",wexford:"EI30",wicklow:"EI31"};
+
 function getCountyRainWarning48h(counties, warnings, nowMs) {
   const horizonMs = nowMs + 48 * 3600 * 1000;
-  const lowerCounties = counties.map(c => c.toLowerCase());
-  let bestLevel = "None";
+  const codes = counties.map(c => FIPS[String(c).toLowerCase().trim()]).filter(Boolean);
+  if (codes.length < counties.length) return { level: "Unknown", details: ["County code not found for " + counties.join(" / ")] };
+  let bestLevel = "None", unreadable = 0;
   const matchedTexts = [];
   for (const w of warnings) {
-    const typeStr = String(w.type || w.phenomenon || w.headline || "").toLowerCase();
-    if (!typeStr.includes("rain")) continue;
-    const lvl = normalizeWarnLevel(w.level || w.severity || w.status || "");
-    if (lvl === "None") continue;
-    const onsetStr = w.onset || w.validFrom || w.start || w.issueTime || "";
-    const expiryStr = w.expiry || w.validTo || w.end || "";
-    if (onsetStr && expiryStr) {
-      const onsetMs = Date.parse(onsetStr), expiryMs = Date.parse(expiryStr);
-      if (!isNaN(onsetMs) && !isNaN(expiryMs) && (expiryMs < nowMs || onsetMs > horizonMs)) continue;
-    }
-    const regionItems = Array.isArray(w.regions)
-      ? w.regions.map(r => String(r).toLowerCase())
-      : String(w.regions || w.counties || w.area || "").toLowerCase().split(/[,;/]+/).map(s => s.trim());
-    const hit = lowerCounties.some(c => regionItems.some(r => r === c || r === `county ${c}` || r === `co. ${c}`));
-    if (hit) {
+    if (!String(w.type || "").toLowerCase().includes("rain")) continue;
+    const lvl = normalizeWarnLevel(w.level);
+    const regions = Array.isArray(w.regions) ? w.regions.map(r => String(r).trim().toUpperCase()) : null;
+    const onsetMs = Date.parse(w.onset), expiryMs = Date.parse(w.expiry);
+    if (!regions || !regions.length || lvl === "None" || isNaN(onsetMs) || isNaN(expiryMs)) { unreadable++; continue; }
+    if (expiryMs < nowMs || onsetMs > horizonMs) continue;
+    if (codes.some(c => regions.includes(c))) {
       if (warnRank(lvl) > warnRank(bestLevel)) bestLevel = lvl;
-      matchedTexts.push(`${lvl} rain warning: ${w.headline || w.type || "rain"}`);
+      matchedTexts.push(`${lvl} rain warning: ${w.headline || "rain"}`);
     }
   }
+  if (bestLevel === "None" && unreadable > 0) return { level: "Unknown", details: [`${unreadable} rain warning(s) could not be read`] };
   return { level: bestLevel, details: matchedTexts };
 }
 
@@ -974,7 +972,7 @@ function evaluateFloodPlan(histList, sheetRows, forecasts, warnRes) {
 
     let effectiveWarn;
     if (warnRes.ok) {
-      effectiveWarn = ["None", "Yellow", "Orange", "Red"][Math.max(warnRank(liveWarn.level), warnRank(overrideWarn))];
+      effectiveWarn = (liveWarn.level === "Unknown" && !hasWarnOverride) ? "Unknown (warning data unreadable)" : ["None", "Yellow", "Orange", "Red"][Math.max(warnRank(liveWarn.level), warnRank(overrideWarn))];
       liveWarn.details.forEach(d => ruleNotes.push(d));
       if (hasWarnOverride) ruleNotes.push(`Warning override (${overrideWarn}) in use; the higher of the live warning and the override is applied.`);
     } else if (hasWarnOverride) {
