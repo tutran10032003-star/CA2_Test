@@ -468,7 +468,27 @@ th { background: #d6ebf5; font-size: 12px; color: #064466; white-space: nowrap; 
     <div class="towns" id="towns"></div>
   </section>
 
-
+<section class="ai-panel" id="aiPanel">
+  <div class="ai-panel-head">
+    <div class="ai-panel-title">
+      <div class="brand-mascot" aria-hidden="true">🌊</div>
+      <div><b>Ask RiverWatch</b><span>Duty Officer and Area Manager questions</span></div>
+    </div>
+  </div>
+  <div class="presets" id="drawerPresets">
+    <button type="button" data-q="What is tonight's plan?">Tonight's plan</button>
+    <button type="button" data-q="Why is Fermoy at that level?">Why is Fermoy at that level?</button>
+    <button type="button" data-q="What if the Suir at Clonmel reaches 150 m³/s?">What if the Suir at Clonmel reaches 150 m³/s?</button>
+    <button type="button" data-q="Which town should be first in line for a flood-defence study?">Flood-defence study</button>
+    <button type="button" data-q="Will my house in Mallow flood tonight?">Will my house in Mallow flood tonight?</button>
+  </div>
+  <label for="question">Your question</label>
+  <textarea id="question" rows="3" placeholder="Ask about tonight's plan, a town, or the winter history…">What is tonight's plan?</textarea>
+  <div class="row"><button id="btnAsk" type="button">Ask RiverWatch</button></div>
+  <div class="answer-spotlight-label">Answer</div>
+  <div class="answer" id="answerBox">The answer will appear here.</div>
+  <div class="usage" id="usageBox"></div>
+</section>
 
   <section class="card">
     <details class="fold">
